@@ -1,0 +1,492 @@
+/* Campaign：AARRR 用户生命周期 */
+.campaign-content {
+    --campaign-accent: #6e9aa8;
+}
+
+.campaign-lifecycle-module {
+    padding-top: 64px;
+}
+
+.campaign-lifecycle {
+    overflow: hidden;
+    border: 1px solid rgba(29,26,26,.14);
+    border-radius: 28px;
+    background: rgba(255,255,255,.42);
+    box-shadow: 0 20px 60px rgba(50,65,68,.045);
+}
+
+.campaign-lifecycle-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 19px 26px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .12em;
+}
+
+.campaign-lifecycle-top span:last-child {
+    color: var(--sky-deep);
+    font-variant-numeric: tabular-nums;
+}
+
+.campaign-stage-nav {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 22px 22px 27px;
+}
+
+.campaign-stage-track {
+    position: absolute;
+    top: 48px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    overflow: hidden;
+    background: rgba(29,26,26,.12);
+}
+
+.campaign-stage-track span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--sky-deep);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .55s var(--ease);
+}
+
+.campaign-stage-button {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    padding: 0 7px;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.campaign-stage-dot {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 15px;
+    border: 1px solid rgba(29,26,26,.24);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    transition: color .25s ease, background .25s ease, border-color .25s ease, box-shadow .3s ease, transform .3s var(--ease);
+}
+
+.campaign-stage-button:hover .campaign-stage-dot {
+    border-color: var(--sky-deep);
+    transform: translateY(-3px);
+}
+
+.campaign-stage-button.is-active .campaign-stage-dot {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+    box-shadow: 0 0 0 6px rgba(110,154,168,.14);
+}
+
+.campaign-stage-button:focus-visible {
+    outline: 2px solid var(--sky-deep);
+    outline-offset: 5px;
+    border-radius: 12px;
+}
+
+.campaign-stage-name {
+    display: block;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: .035em;
+    text-overflow: ellipsis;
+}
+
+.campaign-stage-button strong {
+    display: block;
+    margin-top: 5px;
+    font-family: var(--font-display);
+    font-size: 23px;
+    font-weight: 500;
+}
+
+.campaign-stage-button small {
+    display: block;
+    margin-top: 7px;
+    color: var(--faint);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.campaign-stage-button.is-active .campaign-stage-name,
+.campaign-stage-button.is-active strong {
+    color: var(--ink);
+}
+
+.campaign-stage-button.is-active strong {
+    font-weight: 700;
+}
+
+.campaign-stage-panel {
+    padding: 34px;
+    border-top: 1px solid var(--line);
+    animation: campaignPanelIn .48s var(--ease);
+}
+
+@keyframes campaignPanelIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.campaign-stage-panel[data-campaign-panel="acquisition"] { background: #edf4f5; }
+.campaign-stage-panel[data-campaign-panel="activation"] { background: #eff3ef; }
+.campaign-stage-panel[data-campaign-panel="retention"] { background: #f4f0ea; }
+.campaign-stage-panel[data-campaign-panel="revenue"] { background: #f0eef3; }
+.campaign-stage-panel[data-campaign-panel="referral"] { background: #eaf1f3; }
+
+.campaign-panel-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.campaign-panel-kicker {
+    display: block;
+    margin-bottom: 11px;
+    color: var(--sky-deep);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .12em;
+}
+
+.campaign-panel-heading h5 {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 3.2vw, 44px);
+    font-weight: 450;
+    line-height: 1.25;
+    letter-spacing: -.025em;
+}
+
+.campaign-panel-heading h5 span {
+    margin-left: 12px;
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+.campaign-panel-heading > p {
+    max-width: 355px;
+    color: #555d5f;
+    font-size: 15px;
+    line-height: 1.75;
+    text-align: right;
+}
+
+.campaign-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 30px;
+}
+
+.campaign-action-card {
+    min-width: 0;
+    padding: 24px 25px;
+    border: 1px solid rgba(29,26,26,.12);
+    border-radius: 18px;
+    background: rgba(255,255,255,.57);
+}
+
+.campaign-action-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 22px;
+    color: var(--sky-deep);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: .11em;
+}
+
+.campaign-action-card h6 {
+    margin-bottom: 12px;
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.campaign-action-card p {
+    color: #555d5f;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+.campaign-action-card strong,
+.campaign-revenue-original strong,
+.campaign-referral-intro strong {
+    color: var(--ink);
+    font-weight: 750;
+}
+
+.campaign-panel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 26px;
+    border-top: 1px solid var(--line);
+}
+
+.campaign-panel-controls > span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.campaign-control-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.campaign-control-button {
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.campaign-control-button:hover {
+    border-color: var(--line-strong);
+    background: var(--paper-blue);
+    color: var(--ink);
+}
+
+.campaign-control-button[data-campaign-next] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+}
+
+.campaign-control-button[data-campaign-next]:hover {
+    background: #343030;
+}
+
+/* Revenue：三个产品杠杆 */
+.campaign-revenue-levers {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 34px;
+}
+
+.campaign-revenue-lever {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    padding: 23px;
+    border: 1px solid rgba(29,26,26,.13);
+    border-radius: 18px;
+    background: rgba(255,255,255,.55);
+}
+
+.campaign-revenue-lever span {
+    color: var(--sky-deep);
+    font-size: 11px;
+    letter-spacing: .1em;
+}
+
+.campaign-revenue-lever strong {
+    font-family: var(--font-display);
+    font-size: clamp(21px, 2.2vw, 28px);
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.campaign-revenue-original {
+    margin-top: 18px;
+    padding: 21px 24px;
+    border-left: 3px solid var(--sky-deep);
+    background: rgba(255,255,255,.48);
+    color: #555d5f;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* Referral：Anthropic 增长路径 */
+.campaign-referral-intro {
+    margin-top: 30px;
+    color: #555d5f;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.campaign-referral-route {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin-top: 22px;
+}
+
+.campaign-referral-step {
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+    padding: 24px;
+    border: 1px solid rgba(29,26,26,.14);
+    border-radius: 18px;
+    background: rgba(255,255,255,.58);
+}
+
+.campaign-referral-step span {
+    color: var(--sky-deep);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: .12em;
+}
+
+.campaign-referral-step strong {
+    font-family: var(--font-display);
+    font-size: clamp(21px, 2vw, 27px);
+    font-weight: 650;
+    line-height: 1.5;
+}
+
+.campaign-referral-arrow {
+    color: var(--sky-deep);
+    font-size: 24px;
+    font-style: normal;
+}
+
+/* Campaign 关键原则 */
+.campaign-key-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.campaign-key-card {
+    min-height: 205px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 38px;
+    padding: 26px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.35);
+}
+
+.campaign-key-card:nth-child(2) { background: var(--paper-blue); }
+.campaign-key-card:nth-child(3) { background: #f1ece5; }
+
+.campaign-key-card span {
+    color: var(--sky-deep);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: .11em;
+}
+
+.campaign-key-card strong {
+    font-family: var(--font-display);
+    font-size: clamp(25px, 2.5vw, 34px);
+    font-weight: 550;
+    line-height: 1.5;
+}
+
+.campaign-key-statement {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 26px;
+    align-items: start;
+    margin-top: 20px;
+    padding: 34px 36px;
+    background: var(--ink);
+    color: #fff;
+}
+
+.campaign-key-statement > span {
+    padding-top: 9px;
+    color: var(--sky);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .14em;
+}
+
+.campaign-key-statement p {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 2.8vw, 38px);
+    line-height: 1.65;
+}
+
+.campaign-key-statement strong {
+    color: var(--sky);
+    font-weight: 700;
+}
+
+@media (max-width: 980px) {
+    .campaign-panel-heading { align-items: flex-start; }
+    .campaign-panel-heading h5 span { display: block; margin: 8px 0 0; }
+    .campaign-stage-button small { display: none; }
+    .campaign-referral-route { gap: 10px; }
+    .campaign-referral-step { padding: 20px; }
+}
+
+@media (max-width: 760px) {
+    .campaign-lifecycle-module { padding-top: 50px; }
+    .campaign-lifecycle { border-radius: 20px; }
+    .campaign-lifecycle-top { padding: 16px 18px; font-size: 9px; }
+    .campaign-stage-nav { padding: 18px 5px 21px; }
+    .campaign-stage-track { top: 38px; left: 10%; right: 10%; }
+    .campaign-stage-button { padding: 0 2px; }
+    .campaign-stage-dot { width: 40px; height: 40px; margin-bottom: 12px; font-size: 10px; }
+    .campaign-stage-button.is-active .campaign-stage-dot { box-shadow: 0 0 0 4px rgba(110,154,168,.14); }
+    .campaign-stage-name { font-size: 8px; letter-spacing: 0; }
+    .campaign-stage-button strong { margin-top: 4px; font-size: 17px; }
+    .campaign-stage-panel { padding: 24px 19px; }
+    .campaign-panel-heading { display: block; }
+    .campaign-panel-heading h5 { font-size: 31px; }
+    .campaign-panel-heading h5 span { font-size: 14px; line-height: 1.6; }
+    .campaign-panel-heading > p { margin-top: 15px; font-size: 14px; text-align: left; }
+    .campaign-action-grid { grid-template-columns: 1fr; margin-top: 24px; }
+    .campaign-action-card { padding: 21px 20px; border-radius: 15px; }
+    .campaign-action-meta { margin-bottom: 17px; }
+    .campaign-action-card h6 { font-size: 20px; }
+    .campaign-action-card p { font-size: 14px; }
+    .campaign-panel-controls { align-items: stretch; flex-direction: column; padding: 18px; }
+    .campaign-panel-controls > span { display: none; }
+    .campaign-control-buttons { display: grid; grid-template-columns: .8fr 1.2fr; }
+    .campaign-control-button { padding: 9px 10px; font-size: 11px; }
+    .campaign-revenue-levers { grid-template-columns: 1fr; margin-top: 25px; }
+    .campaign-revenue-lever { min-height: 105px; gap: 20px; }
+    .campaign-revenue-original { padding: 18px; font-size: 15px; }
+    .campaign-referral-route { grid-template-columns: 1fr; gap: 8px; }
+    .campaign-referral-step { min-height: 120px; gap: 22px; }
+    .campaign-referral-arrow { transform: rotate(90deg); text-align: center; }
+    .campaign-key-grid { grid-template-columns: 1fr; }
+    .campaign-key-card { min-height: 145px; gap: 26px; padding: 22px; }
+    .campaign-key-statement { grid-template-columns: 1fr; gap: 14px; padding: 27px 23px; }
+    .campaign-key-statement > span { padding-top: 0; }
+    .campaign-key-statement p { font-size: 25px; }
+}
