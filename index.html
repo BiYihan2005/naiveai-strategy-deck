@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Naive AI 战略研究互动网站：宏观、RSI、用户研究与宣发 Campaign。">
+    <title>Naive AI 战略研究｜互动研究网站</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23537f90'/%3E%3Cpath d='M17 46V18h7l16 19V18h7v28h-7L24 27v19z' fill='white'/%3E%3C/svg%3E">
+    <style>
+        /* ===========================================
+           本地字体回退与主题：避免外部字体跨域导致排版不稳定
+           =========================================== */
+        :root {
+            --paper: #f8f9f7;
+            --paper-blue: #edf4f5;
+            --ink: #1d1a1a;
+            --muted: #737676;
+            --faint: #9a9e9e;
+            --line: rgba(29, 26, 26, 0.15);
+            --line-strong: rgba(29, 26, 26, 0.34);
+            --sky: #b8d4dc;
+            --sky-deep: #6e9aa8;
+            --sage: #b9c9bd;
+            --sand: #ddd2c2;
+            --font-display: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --font-body: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; background: var(--paper); }
+        body {
+            font-family: var(--font-body);
+            color: var(--ink);
+            background: var(--paper);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        button, a { font: inherit; color: inherit; }
+        button { cursor: pointer; }
+        a { text-decoration: none; }
+        [hidden] { display: none !important; }
+        ::selection { background: var(--sky); color: var(--ink); }
+
+        /* ===========================================
+           顶部横栏：始终可用，点击跳转到对应板块
+           =========================================== */
+        .scroll-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 3000; background: rgba(29,26,26,.05); }
+        .scroll-progress span { display: block; width: 0; height: 100%; background: var(--sky-deep); }
+        .site-header {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            width: min(1240px, calc(100% - 36px));
+            min-height: 62px;
+            display: grid;
+            grid-template-columns: 150px 1fr 150px;
+            align-items: center;
+            padding: 8px 12px 8px 22px;
+            border: 1px solid rgba(29,26,26,.11);
+            border-radius: 22px;
+            background: rgba(248,249,247,.82);
+            backdrop-filter: blur(22px);
+            box-shadow: 0 8px 30px rgba(50,65,68,.04);
+        }
+        .brand { font-size: 24px; font-weight: 600; letter-spacing: -.05em; width: max-content; }
+        .top-nav { display: flex; align-items: center; justify-content: center; gap: 2px; }
+        .nav-link {
+            position: relative;
+            border: 0;
+            background: transparent;
+            padding: 11px 15px;
+            color: var(--muted);
+            font-size: 14px;
+            white-space: nowrap;
+            transition: color .25s ease;
+        }
+        .nav-link::after { content: ""; position: absolute; left: 15px; right: 15px; bottom: 5px; height: 1px; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease); }
+        .nav-link:hover, .nav-link.active { color: var(--ink); }
+        .nav-link.active::after { transform: scaleX(1); }
+        .header-meta { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+        .section-counter { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .edit-button, .small-button {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,.45);
+            padding: 8px 13px;
+            font-size: 12px;
+            transition: background .2s ease;
+        }
+        .edit-button:hover, .small-button:hover { background: #fff; }
+        .edit-button.active { color: #fff; background: var(--ink); }
+
+        /* ===========================================
+           Sticky Hero：标题停留，正文上滑覆盖并收起标题
+           =========================================== */
+        .hero-sky {
+            background:
+                linear-gradient(180deg, rgba(248,249,247,.02) 30%, rgba(248,249,247,.62) 100%),
+                url("https://naiveai.com/assets/background/home-sky-poster.webp") center / cover no-repeat,
+                linear-gradient(145deg, #dcecf1, #f7f8f5 72%);
+        }
+        .intro-wrap { height: 112vh; position: relative; z-index: 0; }
+        .intro, .chapter-hero {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            height: 100svh;
+            overflow: hidden;
+        }
+        .intro { display: grid; place-items: center; }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: min(1180px, calc(100% - 48px));
+            margin: auto;
+            text-align: center;
+            transform: translateY(var(--hero-y, 0px)) scale(var(--hero-scale, 1));
+            opacity: var(--hero-opacity, 1);
+            filter: blur(var(--hero-blur, 0px));
+            will-change: transform, opacity;
+        }
+        .eyebrow { margin-bottom: 26px; color: var(--muted); font-size: 14px; letter-spacing: .18em; text-transform: uppercase; }
+        .intro h1 { font-family: var(--font-display); font-size: clamp(72px, 9vw, 138px); line-height: 1.02; font-weight: 400; letter-spacing: -.055em; }
+        .intro-subtitle { width: min(760px, 90%); margin: 30px auto 0; color: #50585a; font-size: clamp(18px, 2vw, 26px); line-height: 1.6; }
+        .hero-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 38px; }
+        .hero-tags span, .tag { display: inline-flex; align-items: center; min-height: 32px; padding: 6px 14px; border: 1px solid rgba(29,26,26,.18); border-radius: 22px; color: #555d5f; background: rgba(255,255,255,.2); font-size: 13px; }
+        .scroll-cue { position: absolute; left: 50%; bottom: 30px; z-index: 4; transform: translateX(-50%); color: var(--muted); font-size: 12px; letter-spacing: .1em; text-align: center; }
+        .scroll-cue::after { content: ""; display: block; width: 1px; height: 34px; margin: 12px auto 0; background: var(--line-strong); animation: scrollPulse 1.8s ease-in-out infinite; }
+        @keyframes scrollPulse { 0%,100% { transform: scaleY(.35); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } }
+        .dot-field { position: absolute; right: 7vw; bottom: 10vh; z-index: 3; width: 220px; height: 220px; display: grid; grid-template-columns: repeat(9, 1fr); place-items: center; opacity: .48; }
+        .dot-field i { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); transition: transform .25s var(--ease); }
+
+        .chapter { position: relative; z-index: 2; background: var(--paper); }
+        .chapter-hero { z-index: 1; display: flex; }
+        .chapter-hero .chapter-number { position: absolute; right: 4vw; bottom: -5vw; color: rgba(29,26,26,.055); font-family: var(--font-display); font-size: 36vw; line-height: 1; pointer-events: none; }
+        .chapter-hero h2 { font-family: var(--font-display); font-size: clamp(62px, 8vw, 122px); line-height: 1.08; font-weight: 400; letter-spacing: -.045em; }
+        .chapter-hero .hero-description { width: min(720px, 92%); margin: 28px auto 0; color: #50585a; font-size: clamp(18px, 1.8vw, 24px); line-height: 1.65; }
+        .chapter-body {
+            position: relative;
+            z-index: 3;
+            min-height: 100vh;
+            overflow: hidden;
+            border-radius: 30px 30px 0 0;
+            background: var(--paper);
+            box-shadow: 0 -24px 70px rgba(60,75,78,.08);
+        }
+        .content-shell { width: min(1280px, 100%); margin: auto; padding: 80px 40px 110px; }
+        .chapter-intro { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; padding-bottom: 42px; border-bottom: 1px solid var(--line-strong); }
+        .chapter-intro h3 { font-family: var(--font-display); font-size: clamp(30px, 3.2vw, 46px); font-weight: 400; }
+        .chapter-intro p { max-width: 560px; color: var(--muted); font-size: 16px; line-height: 1.7; text-align: right; }
+
+        /* ===========================================
+           通用内容模块与滚动 Reveal
+           =========================================== */
+        .module { padding: 88px 0; border-bottom: 1px solid var(--line); }
+        .module:last-child { border-bottom: 0; }
+        .module-heading { display: grid; grid-template-columns: 74px 1fr; gap: 20px; margin-bottom: 42px; }
+        .module-index { padding-top: 10px; color: var(--sky-deep); font-size: 13px; letter-spacing: .1em; }
+        .module-kicker { margin-bottom: 12px; color: var(--muted); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+        .module h4 { font-family: var(--font-display); font-size: clamp(34px, 3.5vw, 52px); line-height: 1.25; font-weight: 400; letter-spacing: -.02em; }
+        .module-description { max-width: 800px; margin-top: 14px; color: var(--muted); font-size: 17px; line-height: 1.7; }
+        [data-reveal] { opacity: 0; transform: translateY(34px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+        [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 18px; }
+        .panel { border: 1px solid var(--line); background: rgba(255,255,255,.38); padding: 28px; }
+        .panel.soft { background: var(--paper-blue); border-color: rgba(110,154,168,.25); }
+        .panel h5 { margin-bottom: 14px; font-family: var(--font-display); font-size: 28px; font-weight: 400; line-height: 1.35; }
+        .panel p { color: var(--muted); font-size: 16px; line-height: 1.75; }
+        .line-card { position: relative; padding: 24px 4px; border-top: 1px solid var(--line-strong); }
+        .line-card .card-no { color: var(--sky-deep); font-size: 12px; letter-spacing: .08em; }
+        .line-card h5 { margin: 16px 0 12px; font-family: var(--font-display); font-size: 26px; font-weight: 400; }
+        .line-card p { color: var(--muted); font-size: 15px; line-height: 1.75; }
+        .fill-tag { display: inline-flex; width: max-content; align-items: center; margin-top: 20px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 18px; color: var(--muted); font-size: 11px; letter-spacing: .06em; }
+        .note { display: flex; justify-content: space-between; gap: 24px; margin-top: 30px; padding: 20px 22px; border-left: 3px solid var(--sky-deep); background: var(--paper-blue); color: var(--muted); font-size: 15px; line-height: 1.65; }
+        .placeholder { color: #8b9090; }
+
+        /* ===========================================
+           Tabs：技术、产品方向与 Campaign 共用
+           =========================================== */
+        .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .tab-button, .filter-button {
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: transparent;
+            padding: 10px 16px;
+            color: var(--muted);
+            font-size: 14px;
+            transition: background .25s ease, color .25s ease, border-color .25s ease;
+        }
+        .tab-button:hover, .tab-button.active, .filter-button:hover, .filter-button.active { color: var(--ink); border-color: var(--line-strong); background: var(--paper-blue); }
+        [data-tabs] { transition: opacity .24s ease, filter .24s ease; }
+        [data-tabs].is-switching { opacity: .42; filter: blur(3px); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: grid; animation: panelIn .62s var(--ease); }
+        @keyframes panelIn { from { opacity: 0; transform: translateY(18px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        .detail-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 34px; align-items: start; }
+        .detail-title { font-family: var(--font-display); font-size: clamp(30px,3vw,44px); font-weight: 400; line-height: 1.3; }
+        .detail-copy { margin-top: 18px; color: var(--muted); font-size: 17px; line-height: 1.8; }
+        .research-list { border-top: 1px solid var(--line-strong); }
+        .research-item { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+        .research-item > span { color: var(--sky-deep); font-size: 12px; }
+        .research-item h6 { margin-bottom: 6px; font-size: 16px; font-weight: 400; }
+        .research-item p { color: var(--muted); font-size: 14px; line-height: 1.65; }
+
+        /* ===========================================
+           宏观：矩阵、可点击公司行与比较表
+           =========================================== */
+        .matrix-layout { display: grid; grid-template-columns: 1.35fr .85fr; gap: 30px; }
+        .matrix { display: grid; grid-template-columns: repeat(2,1fr); border: 1px solid var(--line); }
+        .matrix-cell { min-height: 210px; padding: 28px; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(255,255,255,.25); text-align: left; transition: background .25s ease; }
+        .matrix-cell:nth-child(2n) { border-right: 0; }
+        .matrix-cell:nth-last-child(-n+2) { border-bottom: 0; }
+        .matrix-cell:hover, .matrix-cell.active { background: var(--paper-blue); }
+        .matrix-cell strong { display: block; margin-bottom: 12px; font-family: var(--font-display); font-size: 26px; font-weight: 400; }
+        .matrix-cell span { color: var(--muted); font-size: 14px; line-height: 1.7; }
+        .matrix-detail { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
+        .data-table { overflow-x: auto; border-top: 1px solid var(--line-strong); }
+        .table-row { display: grid; min-width: 1020px; align-items: center; gap: 16px; min-height: 70px; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.55; }
+        .table-head { min-height: 52px; color: var(--muted); font-size: 12px; }
+        .company-table .table-row { grid-template-columns: 1fr 1.25fr 1.15fr 1.15fr 1.3fr 1fr; }
+        .company-row { width: 100%; padding: 0; border: 0; background: transparent; text-align: left; transition: background .2s ease, padding .25s var(--ease); }
+        button.company-row:hover, button.company-row.active { background: var(--paper-blue); padding-left: 12px; }
+        .company-name { font-size: 18px; font-weight: 400; }
+        .company-detail { display: grid; grid-template-columns: .8fr 1.5fr; gap: 28px; margin-top: 24px; padding: 26px 28px; background: var(--paper-blue); }
+        .company-detail h5 { font-family: var(--font-display); font-size: 30px; font-weight: 400; }
+        .company-detail p { color: var(--muted); font-size: 15px; line-height: 1.7; }
+
+        /* ===========================================
+           RSI：可点击闭环与 Lab 筛选
+           =========================================== */
+        .rsi-loop { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 22px; }
+        .loop-node { min-height: 180px; padding: 24px; border: 1px solid var(--line); background: rgba(255,255,255,.35); text-align: left; transition: transform .3s var(--ease), background .25s ease; }
+        .loop-node:hover { transform: translateY(-5px); }
+        .loop-node.active { background: var(--paper-blue); border-color: var(--sky-deep); }
+        .loop-node span { color: var(--sky-deep); font-size: 12px; }
+        .loop-node strong { display: block; margin: 28px 0 10px; font-family: var(--font-display); font-size: 25px; font-weight: 400; }
+        .loop-node small { color: var(--muted); font-size: 13px; line-height: 1.5; }
+        .loop-detail { padding: 28px; border-left: 3px solid var(--sky-deep); background: var(--paper-blue); }
+        .loop-detail h5 { margin-bottom: 10px; font-family: var(--font-display); font-size: 30px; font-weight: 400; }
+        .loop-detail p { color: var(--muted); line-height: 1.75; }
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+        .lab-table .table-row { grid-template-columns: .75fr 1.1fr 1.25fr 1.25fr 1.4fr 1.1fr; }
+        .model-table .table-row { grid-template-columns: 1fr 1.45fr 1.1fr 1.1fr 1.1fr 1.25fr; }
+        .compare-panels { display: grid; grid-template-columns: 1fr 70px 1fr; gap: 18px; align-items: stretch; }
+        .compare-panel { padding: 30px; border: 1px solid var(--line); }
+        .compare-panel.accent { background: var(--paper-blue); }
+        .compare-panel h5 { margin-bottom: 22px; font-family: var(--font-display); font-size: 34px; font-weight: 400; }
+        .compare-row { padding: 17px 0; border-top: 1px solid var(--line); }
+        .compare-row strong { display: block; margin-bottom: 7px; font-size: 15px; font-weight: 400; }
+        .compare-row p { color: var(--muted); font-size: 14px; line-height: 1.65; }
+        .versus { display: grid; place-items: center; color: var(--muted); font-size: 12px; letter-spacing: .1em; }
+
+        /* ===========================================
+           用户研究：快速定位与手风琴研究画布
+           =========================================== */
+        .persona-nav { position: sticky; top: 96px; z-index: 20; display: flex; gap: 6px; padding: 10px; margin-bottom: 24px; overflow-x: auto; border: 1px solid var(--line); border-radius: 20px; background: rgba(248,249,247,.88); backdrop-filter: blur(16px); }
+        .persona-button { flex: 1; min-width: 150px; padding: 12px; border: 0; border-radius: 12px; background: transparent; color: var(--muted); font-size: 13px; white-space: nowrap; }
+        .persona-button.active, .persona-button:hover { color: var(--ink); background: var(--paper-blue); }
+        .persona-section { padding: 60px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 170px; }
+        .persona-section:last-child { border-bottom: 0; }
+        .persona-header { display: grid; grid-template-columns: 90px 1fr; gap: 18px; margin-bottom: 30px; }
+        .persona-number { color: var(--sky-deep); font-size: 14px; padding-top: 10px; }
+        .persona-header h4 { font-size: clamp(32px,3.3vw,48px); }
+        .persona-header p { max-width: 800px; margin-top: 12px; color: var(--muted); font-size: 16px; line-height: 1.7; }
+        details.research-accordion { border-top: 1px solid var(--line-strong); }
+        details.research-accordion summary { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; cursor: pointer; list-style: none; font-size: 16px; }
+        details.research-accordion summary::-webkit-details-marker { display: none; }
+        details.research-accordion summary::after { content: "+"; color: var(--muted); font-size: 22px; font-weight: 300; }
+        details.research-accordion[open] summary::after { content: "−"; }
+        .accordion-content { padding: 0 0 26px; }
+        .accordion-content ul { list-style: none; }
+        .accordion-content li { position: relative; padding: 10px 0 10px 18px; color: var(--muted); font-size: 14px; line-height: 1.65; border-bottom: 1px solid var(--line); }
+        .accordion-content li::before { content: ""; position: absolute; left: 0; top: 19px; width: 5px; height: 5px; border-radius: 50%; background: var(--sky-deep); }
+        .question { margin-top: 26px; padding: 24px 26px; border: 1px solid var(--line-strong); font-family: var(--font-display); font-size: 23px; line-height: 1.55; }
+
+        /* ===========================================
+           产品方向与 Campaign 交互组件
+           =========================================== */
+        .north-star { padding: 46px 30px; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line); text-align: center; }
+        .north-star p { margin-bottom: 16px; color: var(--muted); font-size: 12px; letter-spacing: .14em; }
+        .north-star h4 { font-size: clamp(38px,4.4vw,64px); }
+        .pillar-tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 26px 0 18px; }
+        .pillar-button { padding: 24px; border: 1px solid var(--line); background: transparent; text-align: left; }
+        .pillar-button.active, .pillar-button:hover { background: var(--paper-blue); border-color: var(--sky-deep); }
+        .pillar-button span { color: var(--sky-deep); font-size: 11px; letter-spacing: .08em; }
+        .pillar-button strong { display: block; margin-top: 14px; font-family: var(--font-display); font-size: 27px; font-weight: 400; }
+        .campaign-stages { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+        .campaign-stage { min-height: 160px; padding: 22px; border: 0; border-top: 2px solid var(--line-strong); background: rgba(255,255,255,.3); text-align: left; }
+        .campaign-stage.active, .campaign-stage:hover { border-color: var(--sky-deep); background: var(--paper-blue); }
+        .campaign-stage span { color: var(--sky-deep); font-size: 11px; }
+        .campaign-stage strong { display: block; margin-top: 28px; font-family: var(--font-display); font-size: 27px; font-weight: 400; }
+        .channel-list { border-top: 1px solid var(--line-strong); }
+        .channel-item { display: grid; grid-template-columns: 1fr 1.35fr 1fr; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.6; }
+        .channel-item span { color: var(--muted); }
+        .message-core { padding: 36px; background: var(--paper-blue); }
+        .message-core h5 { font-family: var(--font-display); font-size: 36px; font-weight: 400; line-height: 1.45; }
+        .message-core p { margin-top: 18px; color: var(--muted); line-height: 1.7; }
+
+        /* ===========================================
+           结尾、浮动演讲导航与编辑工具
+           =========================================== */
+        .closing { position: relative; z-index: 5; min-height: 100vh; padding: 140px 40px 80px; background: var(--paper); }
+        .closing-inner { width: min(1280px,100%); margin: auto; }
+        .closing h2 { max-width: 900px; font-family: var(--font-display); font-size: clamp(54px,7vw,100px); line-height: 1.08; font-weight: 400; letter-spacing: -.04em; }
+        .closing-subtitle { max-width: 680px; margin: 24px 0 60px; color: var(--muted); font-size: 18px; line-height: 1.75; }
+        .closing-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+        .closing-card { min-height: 210px; padding: 24px; border: 1px solid var(--line); background: rgba(255,255,255,.35); text-align: left; transition: transform .3s var(--ease), background .25s ease; }
+        .closing-card:hover { transform: translateY(-6px); background: var(--paper-blue); }
+        .closing-card span { color: var(--sky-deep); font-size: 12px; }
+        .closing-card strong { display: block; margin: 45px 0 12px; font-family: var(--font-display); font-size: 25px; font-weight: 400; }
+        .closing-card p { color: var(--muted); font-size: 13px; line-height: 1.65; }
+        .site-footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 90px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+        .chapter-rail { position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 1200; display: flex; flex-direction: column; gap: 12px; }
+        .rail-dot { position: relative; width: 22px; height: 22px; border: 0; background: transparent; }
+        .rail-dot::after { content: ""; position: absolute; left: 8px; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: rgba(29,26,26,.28); transition: transform .25s ease, background .25s ease; }
+        .rail-dot.active::after { transform: scale(1.8); background: var(--ink); }
+        .rail-dot span { position: absolute; right: 28px; top: 1px; width: max-content; padding: 3px 8px; border-radius: 10px; background: rgba(248,249,247,.9); color: var(--muted); font-size: 11px; opacity: 0; transform: translateX(8px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+        .rail-dot:hover span { opacity: 1; transform: translateX(0); }
+        .next-chapter { position: fixed; right: 22px; bottom: 22px; z-index: 1500; display: flex; align-items: center; gap: 16px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 24px; background: rgba(248,249,247,.86); backdrop-filter: blur(18px); font-size: 12px; box-shadow: 0 8px 28px rgba(50,65,68,.06); }
+        .next-chapter span { color: var(--muted); }
+        .next-chapter strong { font-weight: 400; }
+        .edit-panel { position: fixed; left: 20px; bottom: 20px; z-index: 1800; display: none; gap: 8px; align-items: center; padding: 8px; border-radius: 22px; background: var(--ink); color: #fff; }
+        .edit-panel.active { display: flex; }
+        .edit-panel span { padding: 0 10px; color: rgba(255,255,255,.65); font-size: 11px; }
+        .edit-panel button { border: 1px solid rgba(255,255,255,.2); border-radius: 16px; background: transparent; color: #fff; padding: 8px 11px; font-size: 11px; }
+        [data-editable]:focus { outline: 2px solid var(--sky-deep); outline-offset: 4px; background: rgba(255,255,255,.35); }
+        .toast { position: fixed; left: 50%; bottom: 24px; z-index: 2500; transform: translate(-50%,20px); padding: 11px 18px; border-radius: 22px; background: var(--ink); color: #fff; font-size: 12px; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
+        .toast.show { opacity: 1; transform: translate(-50%,0); }
+
+        /* ===========================================
+           柔和页面过渡、反色圆形光标与文字反馈
+           =========================================== */
+        .page-veil { position: fixed; inset: 0; z-index: 1700; pointer-events: none; opacity: 0; background: rgba(248,249,247,.76); backdrop-filter: blur(8px); transition: opacity .48s var(--ease); }
+        .page-veil.active { opacity: .38; }
+        .soft-swap { transition: opacity .22s ease, transform .22s var(--ease), filter .22s ease; }
+        .soft-swap.swapping { opacity: 0; transform: translateY(8px); filter: blur(3px); }
+        .text-feedback { animation: textFeedback .78s var(--ease); transform-origin: center left; }
+        @keyframes textFeedback {
+            0% { transform: scale(1); filter: blur(0); }
+            38% { transform: scale(1.045); color: var(--sky-deep); filter: blur(0); }
+            100% { transform: scale(1); filter: blur(0); }
+        }
+        .cursor-dot { position: fixed; left: 0; top: 0; z-index: 5000; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #fff; mix-blend-mode: difference; opacity: 0; pointer-events: none; will-change: transform; transition: opacity .2s ease; }
+        .cursor-dot.visible { opacity: 1; }
+        body.has-custom-cursor, body.has-custom-cursor * { cursor: none !important; }
+        body.has-custom-cursor.editing, body.has-custom-cursor.editing * { cursor: auto !important; }
+        body.editing .cursor-dot { display: none; }
+        @media (pointer: coarse), (max-width: 760px) {
+            .cursor-dot { display: none; }
+            body.has-custom-cursor, body.has-custom-cursor * { cursor: auto !important; }
+        }
+
+        /* ===========================================
+           响应式：真正重排的长页，而非缩放整张画布
+           =========================================== */
+        @media (max-width: 1050px) {
+            .site-header { grid-template-columns: 110px 1fr 90px; padding-left: 16px; }
+            .nav-link { padding: 10px; font-size: 13px; }
+            .section-counter { display: none; }
+            .grid-4 { grid-template-columns: repeat(2,1fr); }
+            .closing-grid { grid-template-columns: repeat(3,1fr); }
+            .chapter-rail { display: none; }
+        }
+        @media (max-width: 760px) {
+            .site-header { top: 0; width: 100%; min-height: 60px; grid-template-columns: auto 1fr auto; border-radius: 0; border-left: 0; border-right: 0; padding: 8px 12px; }
+            .brand { font-size: 21px; }
+            .top-nav { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+            .top-nav::-webkit-scrollbar { display: none; }
+            .nav-link { padding: 10px 9px; font-size: 12px; }
+            .header-meta { gap: 0; }
+            .edit-button { padding: 7px 9px; }
+            .intro h1 { font-size: clamp(58px,18vw,88px); }
+            .intro-subtitle { font-size: 17px; }
+            .dot-field { right: -35px; bottom: 12vh; width: 160px; height: 160px; opacity: .25; }
+            .chapter-hero h2 { font-size: clamp(50px,14vw,82px); }
+            .chapter-hero .hero-description { font-size: 17px; }
+            .chapter-body { border-radius: 22px 22px 0 0; }
+            .content-shell { padding: 58px 20px 80px; }
+            .chapter-intro { display: block; }
+            .chapter-intro p { margin-top: 14px; text-align: left; }
+            .module { padding: 62px 0; }
+            .module-heading { grid-template-columns: 1fr; gap: 6px; }
+            .module-index { padding-top: 0; }
+            .grid-2, .grid-3, .detail-grid, .matrix-layout, .company-detail, .compare-panels { grid-template-columns: 1fr; }
+            .grid-4 { grid-template-columns: 1fr; }
+            .versus { min-height: 40px; }
+            .rsi-loop, .campaign-stages { grid-template-columns: repeat(2,1fr); }
+            .persona-header { grid-template-columns: 1fr; }
+            .persona-nav { top: 68px; }
+            .pillar-tabs { grid-template-columns: 1fr; }
+            .pillar-button { padding: 18px; }
+            .closing { padding: 100px 20px 60px; }
+            .closing-grid { grid-template-columns: 1fr; }
+            .closing-card { min-height: 150px; }
+            .closing-card strong { margin-top: 24px; }
+            .site-footer { flex-direction: column; }
+            .next-chapter { right: 12px; bottom: 12px; }
+            .next-chapter span { display: none; }
+            .edit-panel { left: 10px; bottom: 10px; max-width: calc(100% - 20px); flex-wrap: wrap; }
+            .edit-panel span { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+            [data-reveal] { opacity: 1; transform: none; }
+            .hero-content { transform: none !important; opacity: 1 !important; filter: none !important; }
+        }
+    </style>
+    <link rel="stylesheet" href="./macro.css">
+    <link rel="stylesheet" href="./rsi.css">
+    <link rel="stylesheet" href="./users.css">
+    <link rel="stylesheet" href="./campaign.css">
+</head>
+<body>
+    <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
+
+    <header class="site-header">
+        <a class="brand" href="#top" data-goto="top" aria-label="返回首页">Naive AI</a>
+        <nav class="top-nav" aria-label="研究板块">
+            <button class="nav-link" data-goto="macro" data-nav="macro">宏观</button>
+            <button class="nav-link" data-goto="rsi" data-nav="rsi">RSI</button>
+            <button class="nav-link" data-goto="users" data-nav="users">用户研究</button>
+            <button class="nav-link" data-goto="campaign" data-nav="campaign">Campaign</button>
+        </nav>
+        <div class="header-meta"><span class="section-counter" id="sectionCounter">00 / 04</span><button class="edit-button" id="editButton" title="编辑文字（E）">编辑 · E</button></div>
+    </header>
+
+    <aside class="chapter-rail" aria-label="快速章节导航">
+        <button class="rail-dot" data-goto="top" data-rail="top"><span>首页</span></button>
+        <button class="rail-dot" data-goto="macro" data-rail="macro"><span>01 宏观</span></button>
+        <button class="rail-dot" data-goto="rsi" data-rail="rsi"><span>02 RSI</span></button>
+        <button class="rail-dot" data-goto="users" data-rail="users"><span>03 用户研究</span></button>
+        <button class="rail-dot" data-goto="campaign" data-rail="campaign"><span>04 Campaign</span></button>
+    </aside>
+
+    <main>
+        <!-- ===========================================
+             首页：全屏 Sticky Intro，下滑由宏观板块覆盖
+             =========================================== -->
+        <section class="intro-wrap" id="top" data-chapter="top">
+            <div class="intro hero-sky">
+                <div class="hero-content">
+                    <p class="eyebrow" data-editable>互动研究网站 · 内容框架 V0.2</p>
+                    <h1 data-editable>Naive AI<br>战略研究</h1>
+                    <p class="intro-subtitle" data-editable>从 Foundation Model 产业格局，到 Recursive Self-Improvement 产品机会</p>
+                    <div class="hero-tags"><span data-editable>宏观</span><span data-editable>RSI</span><span data-editable>用户研究</span><span data-editable>Campaign</span></div>
+                    <div class="author-credit" aria-label="作者信息"><span>作者：<strong>毕漪涵</strong></span><a href="mailto:biyihan@mail.nankai.edu.cn">biyihan@mail.nankai.edu.cn</a></div>
+                </div>
+                <div class="dot-field" id="dotField" aria-hidden="true"></div>
+                <div class="scroll-cue">向下滚动开始</div>
+            </div>
+        </section>
+
+        <!-- ===========================================
+             01 宏观：技术、应用与盈利
+             =========================================== -->
+        <section class="chapter" id="macro" data-chapter="macro">
+            <div class="chapter-hero hero-sky">
+                <div class="hero-content"><p class="eyebrow">01 / Macro</p><h2 data-editable>大模型<br>产业格局</h2><p class="hero-description" data-editable>从财务盈利、四个闭环，到技术路线、竞争方向与产品应用：模型优势如何沉淀为可持续公司价值。</p></div>
+                <span class="chapter-number" aria-hidden="true">01</span><div class="scroll-cue">下滑进入宏观研究</div>
+            </div>
+            <div class="chapter-body"><div class="content-shell">
+                <div class="chapter-intro" data-reveal>
+                    <div><p class="eyebrow">FROM CAPABILITY TO COMPANY VALUE</p><h3 data-editable>从能力到利润，中间隔着四个闭环</h3></div>
+                    <div><p data-editable>为什么模型越来越强、用户越来越多，很多 AI 公司却仍然亏损？</p><button class="motion-toggle" id="macroMotion" type="button" aria-pressed="false">暂停逻辑线路</button></div>
+                </div>
+                <p class="macro-lead" data-reveal>因为“模型能更厉害地做一道题”和“公司能靠它持续赚钱”，中间隔着一道鸿沟。<strong>模型先要把客户的任务做成，客户才会觉得值得买；公司还要通过合适的产品、定价和渠道，把客户价值变成自己的收入；这些收入扣除推理、交付和销售成本后形成毛利，最后还要覆盖下一代模型的研发和管理投入。</strong></p>
+                <div class="animated-flow" aria-label="任务能力到公司再投资的因果链" data-reveal>
+                    <div class="flow-node"><span>01 / CAPABILITY</span><strong>任务能力</strong></div><i class="flow-arrow" aria-hidden="true"></i>
+                    <div class="flow-node"><span>02 / VALUE</span><strong>客户价值</strong></div><i class="flow-arrow" aria-hidden="true"></i>
+                    <div class="flow-node"><span>03 / MONETIZATION</span><strong>定价与分发</strong></div><i class="flow-arrow" aria-hidden="true"></i>
+                    <div class="flow-node"><span>04 / REVENUE</span><strong>公司收入</strong></div><i class="flow-arrow" aria-hidden="true"></i>
+                    <div class="flow-node"><span>05 / GROSS PROFIT</span><strong>毛利池</strong></div><i class="flow-arrow" aria-hidden="true"></i>
+                    <div class="flow-node"><span>06 / CASH FLOW</span><strong>经营利润与现金流</strong></div><i class="flow-arrow" aria-hidden="true"></i>
+                    <div class="flow-node"><span>07 / REINVEST</span><strong>再投资</strong></div>
+                </div>
+                <p class="macro-copy" data-reveal>这个链条前面是<strong>“活能不能干好”</strong>，中间是<strong>“有没有人愿意持续付钱”</strong>，后面是<strong>“公司能不能靠这笔钱活到下一轮、做出下一代”</strong>。</p>
+                <nav class="macro-toc" aria-label="宏观研究五层结构" data-reveal>
+                    <button data-goto="macro-profit">01 财务盈利对比</button><button data-goto="macro-loops">02 四个闭环</button><button data-goto="macro-roadmap">03 技术路线泳道图</button><button data-goto="macro-direction">04 竞争方向与成本前沿</button><button data-goto="macro-applications">05 产品应用方向</button>
+                </nav>
+
+                <article class="module" id="macro-profit">
+                    <div class="module-heading" data-reveal><span class="module-index">01.1</span><div><p class="module-kicker">Financial Disclosure &amp; Profitability</p><h4>三家有财务披露的大模型厂商（MiniMax、智谱、Anthropic）：目前只有 Anthropic 披露在 2026 Q2 首次实现盈利。</h4><p class="module-description">这里的“盈利”特指 Anthropic 2026 Q2 经营利润转正，不代表 2026 H1 整体净利润转正。除 Q2 单列指标外，报告期统一为 2026 H1；金额统一换算为亿美元。点击指标后，下方会同步显示公式、口径和原始来源。</p></div></div>
+                    <div class="finance-shell" data-reveal>
+                        <div class="finance-toolbar">
+                            <div class="finance-control"><span class="finance-control-label">01｜选择要比较的指标</span><div class="segmented" aria-label="选择财务指标">
+                                <button class="active" data-finance-metric="revenue" aria-pressed="true">收入</button><button data-finance-metric="grossProfit" aria-pressed="false">毛利</button><button data-finance-metric="research" aria-pressed="false">研发开支</button><button data-finance-metric="netLoss" aria-pressed="false">报表净亏损</button><button data-finance-metric="adjustedLoss" aria-pressed="false">调整后净亏损</button><button data-finance-metric="q2Operating" aria-pressed="false">Q2 经营利润</button>
+                            </div></div>
+                            <div class="finance-control"><span class="finance-control-label">02｜选择条形长度算法</span><div class="segmented" aria-label="选择图表尺度"><button class="active" data-finance-scale="linear" aria-pressed="true">线性｜真实比例</button><button data-finance-scale="log" aria-pressed="false">对数｜压缩差距</button></div></div>
+                        </div>
+                        <div class="finance-current"><strong id="financeCurrent">2026 H1 收入</strong><span id="financePeriod">报告期：截至 2026-06-30 止六个月｜金额单位：亿美元</span></div>
+                        <div class="finance-chart" id="financeChart" role="img"></div>
+                        <div class="finance-explainer">
+                            <section class="finance-explain-card"><span class="finance-explain-label">这个指标怎么算？</span><h5 id="financeFormula"></h5><p id="financeScope"></p><p class="finance-note" id="financeNote"></p></section>
+                            <section class="finance-explain-card"><span class="finance-explain-label">条形长度怎么算？</span><h5 id="financeScaleTitle"></h5><p class="finance-formula" id="financeScaleFormula"></p><p id="financeScaleExample"></p><small id="financeScaleNote"></small></section>
+                        </div>
+                        <div class="finance-fx"><strong>智谱怎样换成美元？</strong><p>按中国外汇交易中心 2026-10-28 人民币汇率中间价，1 美元 = 6.7165 元人民币。智谱美元值（亿美元）= 人民币值（亿元）÷ 6.7165；例如 9.53892 ÷ 6.7165 ≈ <strong>1.420 亿美元</strong>。这只是统一币种的展示换算，不是公司实际结汇金额。</p><a href="https://www.chinamoney.org.cn/chinese/ccprnoticecontent/index.html?searchDate=2026-10-28" target="_blank" rel="noreferrer">查看汇率公告 ↗</a></div>
+                        <div class="finance-source-panel"><span class="finance-explain-label">本指标数值来自哪里？</span><div class="finance-source-list" id="financeSources"></div></div>
+                    </div>
+                    <h5 class="finance-ratio-title" data-reveal><span>收入结构在改善，研发覆盖仍是核心矛盾</span><small>毛利能覆盖多少研发开支？毛利 ÷ 研发开支；这是本页的分析计算，不是财报原列指标</small></h5>
+                    <div class="ratio-grid" data-reveal>
+                        <div class="ratio-card"><header><h5>智谱</h5><strong>11.8%</strong></header><div class="ratio-track"><span style="width:11.8%"></span></div><p class="ratio-formula">2.516 亿元毛利 ÷ 21.31 亿元研发开支 × 100% ≈ 11.8%</p><p><strong>智谱的改善在于云端收入和毛利。</strong> 2026 年上半年<strong>云端部署收入 8.252 亿元，占 86.5%；开放平台及 API 业务毛利率提升至 24.6%</strong>。这说明<strong>标准化、持续调用的业务正在成为主体</strong>，但公司并没有整体盈利，同期研发约 <strong>21.31 亿元</strong>，仍明显超过 <strong>2.516 亿元毛利</strong>。</p></div>
+                        <div class="ratio-card"><header><h5>MiniMax</h5><strong>7.0%</strong></header><div class="ratio-track"><span style="width:7%"></span></div><p class="ratio-formula">0.2081 亿美元毛利 ÷ 2.969 亿美元研发开支 × 100% ≈ 7.0%</p><p>MiniMax 上半年<strong>收入 1.166 亿美元、毛利 2,081 万美元</strong>，<strong>毛利率由上年同期 12.1% 提升至 17.9%</strong>；<strong>账面净亏损由 4.022 亿美元收窄至 3.580 亿美元</strong>。</p></div>
+                    </div>
+                    <p class="finance-conclusion" data-reveal><strong>MiniMax 的毛利约相当于研发的 7.0%，智谱约为 11.8%。</strong>这说明两家都在扩大收入和改善部分经营指标，但<strong>毛利池尚不足以覆盖下一代模型研发。</strong></p>
+                    <p class="macro-caption" data-reveal>图中的亏损均以绝对值展示，条越长代表亏损越大。Anthropic 的 <strong>807.48 亿美元</strong> H1 报表净亏损包含约 <strong>723.88 亿美元非现金公允价值变动</strong>，不能直接理解为经营现金消耗。</p>
+
+                    <div class="company-lens" data-reveal>
+                        <div class="company-lens-head"><div><p class="module-kicker">Anthropic / Strategy</p><h5>最强模型 → 企业扩张 → 用量收入 → 再投资</h5></div><p>用<strong>长期、刚性的算力投入</strong>，争取“<strong>始终拥有最强模型</strong>”；再把模型领先转化为产品采用、企业扩张和用量收入；最后把收入继续投入算力、人才和下一代模型。</p></div>
+                        <div class="evidence-layout">
+                            <div class="evidence-tabs" role="tablist" aria-label="Anthropic 七项经营证据">
+                                <button class="evidence-tab active" role="tab" aria-selected="true" data-evidence="1"><span>01</span>最强模型前提</button>
+                                <button class="evidence-tab" role="tab" aria-selected="false" data-evidence="2"><span>02</span>提前锁定算力</button>
+                                <button class="evidence-tab" role="tab" aria-selected="false" data-evidence="3"><span>03</span>个人入口到企业扩张</button>
+                                <button class="evidence-tab" role="tab" aria-selected="false" data-evidence="4"><span>04</span>客户扩张与留存</button>
+                                <button class="evidence-tab" role="tab" aria-selected="false" data-evidence="5"><span>05</span>三层分发体系</button>
+                                <button class="evidence-tab" role="tab" aria-selected="false" data-evidence="6"><span>06</span>收入与经营盈利</button>
+                                <button class="evidence-tab" role="tab" aria-selected="false" data-evidence="7"><span>07</span>结构性风险</button>
+                            </div>
+                            <div class="evidence-panels">
+                                <section class="evidence-panel active" data-evidence-panel="1"><h6>生意建立在“始终拥有最强模型”这个前提上</h6><p>Anthropic 在招股书中反复强调，它的生意建立在“<strong>始终拥有最强模型</strong>”这个前提上。因为客户迁移得非常快：2026 年三季度，<strong>超过 80% 的收入来自过去六个月内才发布的模型版本</strong>。企业会迅速切换到新模型，“把最好的模型用在最值钱的工作上”。</p></section>
+                                <section class="evidence-panel" data-evidence-panel="2"><h6>从低估算力需求，到提前锁定供应</h6><p>Anthropic 过去曾“<strong>严重低估自己需要多少算力</strong>”，导致产品开发和上线受到影响。因此，它开始提前锁定供应：签订了许多的“<strong>无论实际使用量如何</strong>”都要付款的算力采购承诺，同时自己也在从“租云服务”转向“自己租芯片、建数据中心”。</p></section>
+                                <section class="evidence-panel" data-evidence-panel="3"><h6>商业化路径——从个人“入口”，到企业级扩张</h6><p>Anthropic 的收入主要来自按 Token 用量计费：2026 年上半年，<strong>用量收入占约八成</strong>，其余为订阅收入。<strong>个人、开发者先使用 → 在公司内部推广 → 团队采购 → 扩展到其他部门和流程 → 平台与多款应用共同使用。</strong></p><div class="animated-flow"><div class="flow-node"><span>ENTRY</span><strong>个人、开发者先使用</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>ADOPT</span><strong>公司内部推广</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>BUY</span><strong>团队采购</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>EXPAND</span><strong>其他部门和流程</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>PLATFORM</span><strong>平台与多款应用共同使用</strong></div></div></section>
+                                <section class="evidence-panel" data-evidence-panel="4"><h6>客户扩张，而不只是一次性获客</h6><p>年贡献 10 万美元以上的客户，在 2026 年上半年<strong>超过 6000 家，贡献 120 亿美元，占收入 74%</strong>。截至 2026 年 9 月底，<strong>净收入留存率约为 900%</strong>，即同一批客户一年后的花费变成原来的 9 倍。</p><p class="macro-caption">更新口径：截至 2026 年 9 月 30 日，年支出超过 10 万美元的客户已超过 <strong>11,900 家</strong>。</p></section>
+                                <section class="evidence-panel" data-evidence-panel="5"><h6>分销策略：客户内部已有使用者，销售负责推动全公司采用</h6><p>销售人员接触客户时，客户内部往往已经有人在使用 Claude，销售的任务是<strong>争取高管支持并推广到全公司</strong>。在此之上，它建立了三层分发体系：直销和工程师团队：深入客户内部，定制方案和工作流；云厂商：亚马逊、谷歌、微软帮助销售 Claude；2026 年上半年，<strong>经云厂商市场成交的收入已占 48%</strong>；咨询和软件合作伙伴：埃森哲、德勤、Salesforce、Snowflake 等帮助部署和集成 Claude。</p><div class="risk-pair"><div><strong>云厂商市场</strong><span>2026 H1 成交收入占 48%</span></div><div><strong>交付伙伴</strong><span>部署、集成、工作流与组织推广</span></div></div></section>
+                                <section class="evidence-panel" data-evidence-panel="6"><h6>收入高增长之后，首次出现季度经营盈利</h6><p>财务情况：收入层：2026 年上半年<strong>收入 162.86 亿美元</strong>，去年同期为 11.63 亿美元。经营层：2026 年二季度<strong>首次实现经营盈利，经营利润 9.74 亿美元，利润率 8%</strong>。</p><div class="risk-pair"><div><strong>162.86 亿美元</strong><span>2026 H1 收入；去年同期 11.63 亿美元</span></div><div><strong>9.74 亿美元 / 8%</strong><span>2026 Q2 经营利润 / 经营利润率</span></div></div></section>
+                                <section class="evidence-panel" data-evidence-panel="7"><h6>收入是短期、可变的，算力成本却是长期、刚性的</h6><p>结构性风险：<strong>收入是短期、可变的，算力成本却是长期、刚性的</strong>——需求错配：收入增速不及预期，固定账单仍要支付；技术错配：签约时锁定的芯片组合，几年后可能不符合新的模型架构和研发路线。</p><div class="risk-pair"><div><strong>需求错配</strong><span>收入增速不及预期，固定账单仍要支付</span></div><div><strong>技术错配</strong><span>既有芯片组合可能不匹配未来模型架构</span></div></div></section>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="source-row" data-reveal><span>补充阅读（上方来源卡为原始披露）：</span><a href="https://news.cgtn.com/news/2026-10-27/Anthropic-files-for-IPO-reveals-soaring-revenue-massive-net-losses-1RzGVHGukKY/share_amp.html" target="_blank" rel="noreferrer">Anthropic IPO 披露报道</a><a href="https://wallstreetcn.com/articles/3780732" target="_blank" rel="noreferrer">智谱 2026 H1</a><a href="http://www.ce.cn/xwzx/gnsz/gdxw/202609/t20260924_3233397.shtml" target="_blank" rel="noreferrer">MiniMax 2026 H1</a><a href="https://www.chinamoney.org.cn/chinese/ccprnoticecontent/index.html?searchDate=2026-10-28" target="_blank" rel="noreferrer">人民币汇率中间价公告（2026-10-28）</a></div>
+                </article>
+
+                <article class="module" id="macro-loops">
+                    <div class="module-heading" data-reveal><span class="module-index">01.2</span><div><p class="module-kicker">Four Reinforcing Loops</p><h4>四个闭环：任何一个环节打滑，飞轮就停</h4><p class="module-description">点击技术、产品、商业或资本闭环，查看每一环成立的条件。环形箭头表示再投资循环，反向虚线表示真实使用数据从产品回流训练。</p></div></div>
+                    <div class="loop-visual-layout" data-reveal>
+                        <div class="loop-stage">
+                            <svg class="loop-svg" viewBox="0 0 940 540" preserveAspectRatio="none" aria-hidden="true">
+                                <defs><marker id="macroArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#537f90"></path></marker><marker id="macroReturnArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b57b4d"></path></marker></defs>
+                                <path class="orbit-path" marker-end="url(#macroArrow)" d="M580 95 C715 95 830 140 845 209"></path>
+                                <path class="orbit-path" marker-end="url(#macroArrow)" d="M835 331 C825 408 700 462 575 465"></path>
+                                <path class="orbit-path" marker-end="url(#macroArrow)" d="M365 465 C230 465 110 410 105 331"></path>
+                                <path class="orbit-path" marker-end="url(#macroArrow)" d="M105 209 C115 130 230 90 360 90"></path>
+                                <path class="orbit-path reverse" marker-end="url(#macroReturnArrow)" d="M730 245 C660 178 620 168 580 145"></path>
+                            </svg>
+                            <button class="macro-loop-node loop-tech active" data-loop="technology" role="tab" aria-selected="true"><span>01 / TECHNOLOGY</span><strong>技术闭环</strong><small>训练—评测—反馈<br>模型能否持续迭代</small></button>
+                            <button class="macro-loop-node loop-product" data-loop="product" role="tab" aria-selected="false"><span>02 / PRODUCT</span><strong>产品闭环</strong><small>使用—留存—付费—数据<br>能否进入高频工作流</small></button>
+                            <button class="macro-loop-node loop-business" data-loop="business" role="tab" aria-selected="false"><span>03 / BUSINESS</span><strong>商业闭环</strong><small>收入—毛利—经营现金流<br>收入增速能否覆盖成本</small></button>
+                            <button class="macro-loop-node loop-capital" data-loop="capital" role="tab" aria-selected="false"><span>04 / CAPITAL</span><strong>资本闭环</strong><small>现金—额度—融资<br>能否支撑下一代训练</small></button>
+                            <div class="loop-center"><span>THE FLYWHEEL</span><strong>四环咬合<br>才有公司价值</strong></div>
+                        </div>
+                        <aside class="loop-annotations" aria-label="闭环核心批注">
+                            <div class="loop-annotation"><span>批注 01 / 闭环关系</span><p><strong>技术给产品供能力，产品给技术供数据，商业把能力变现，资本把利润再投回训练。</strong></p></div>
+                            <div class="loop-annotation"><span>批注 02 / 核心判断</span><p>未来公司间的差异将更多体现为<strong>闭环完整度</strong>，只有<strong>四个闭环同时成立</strong>，模型优势才可能沉淀为<strong>可持续公司价值</strong>。</p></div>
+                        </aside>
+                    </div>
+                    <div class="macro-loop-detail active" data-loop-panel="technology">
+                        <span class="loop-detail-label">01 / 技术闭环</span><h5>看模型能否持续迭代</h5><p>技术闭环-看模型能否持续迭代：看<strong>训练—评测—反馈能否持续提高能力，评测和反馈能不能自动化、可验证</strong>（评测自动化可能会出现模型会钻空子，骗过评测拿高分）；Coding 是“<strong>首个跑通技术闭环的场景</strong>”（代码有天然的自动反馈信号：测试过不过、编译成不成功、跑出来的结果对不对——这些都不用人工判断，机器自己就能验证）</p><div class="animated-flow"><div class="flow-node"><span>TRAIN</span><strong>训练</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>EVALUATE</span><strong>自动化、可验证评测</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>FEEDBACK</span><strong>反馈</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>ITERATE</span><strong>持续提高能力</strong></div></div><div class="return-line"><span>反馈回流训练；同时警惕模型钻评测空子</span></div>
+                    </div>
+                    <div class="macro-loop-detail" data-loop-panel="product">
+                        <span class="loop-detail-label">02 / 产品闭环</span><h5>看模型能否进入高频工作流</h5><p>产品闭环-看模型能否进入高频工作流：<strong>模型能力强但是没有人用，就没有留存、付费以及真实数据回流</strong>（用户在产品里真实使用模型时产生的对话、提问、反馈、纠错等线上数据，经过脱敏、筛选、标注之后，送回训练管线，用来继续优化模型）；产品闭环和技术闭环是咬合的——<strong>用户用得多 → 产生真实数据 → 反哺技术闭环</strong></p><div class="animated-flow"><div class="flow-node"><span>USE</span><strong>真实使用与留存</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>DATA</span><strong>对话、提问、反馈、纠错</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>PROCESS</span><strong>脱敏、筛选、标注</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>RETURN</span><strong>送回训练管线</strong></div></div>
+                    </div>
+                    <div class="macro-loop-detail" data-loop-panel="business">
+                        <span class="loop-detail-label">03 / 商业闭环</span><h5>看收入增速能否覆盖成本</h5><p>商业闭环-看收入增速能否覆盖成本：成本包括推理成本（用户越多、推理成本越高）、销售成本（获客-面向C端散户，如投放广告等；打单，面向B端企业用户，销售团队上门对接；渠道分成：接入到别的平台拓展客源）、研发成本（训练下一代模型的钱），举例子：<strong>智谱：毛利仅相当于研发费用的 11.8%；MiniMax：毛利仅相当于研发费用的 7.0%，研发同比 +138.8%</strong>（毛利额=营业收入-营业成本，毛利只是减掉直接提供服务的成本，并没有扣掉销售费用、研发费用和行政工资这些）；单位经济性，增长的每一块钱是否都在亏更多钱——<strong>规模不经济：收入涨、亏损同步变大，规模越大亏得越多</strong></p><div class="cost-grid"><div><strong>推理成本</strong><span>用户越多、调用越多，直接服务成本越高</span></div><div><strong>销售成本</strong><span>C 端获客、B 端打单与渠道分成</span></div><div><strong>研发成本</strong><span>训练下一代模型的钱</span></div><div><strong>单位经济性</strong><span>增长的每一块钱是否都在亏更多钱</span></div></div><div class="animated-flow"><div class="flow-node"><span>VALUE</span><strong>客户价值、定价与分发</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>REVENUE</span><strong>公司收入</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>GROSS PROFIT</span><strong>收入 − 营业成本 = 毛利池</strong></div><i class="flow-arrow" aria-hidden="true"></i><div class="flow-node"><span>OPERATING</span><strong>经营利润与现金流</strong></div></div>
+                    </div>
+                    <div class="macro-loop-detail" data-loop-panel="capital">
+                        <span class="loop-detail-label">04 / 资本闭环</span><h5>看融资能否支撑下一代训练</h5><p>资本闭环-看融资能否支撑下一代训练：资金来源——<strong>自有现金、云厂商额度</strong>（如微软投资openai，亚马逊投资anthropic，提供云额度换股份）、<strong>外部融资</strong>。</p><div class="funding-flow"><div class="funding-sources"><span>自有现金</span><span>云厂商额度</span><span>外部融资</span></div><i class="flow-arrow" aria-hidden="true"></i><div class="funding-target">下一代模型训练</div></div><p class="macro-caption"><strong>短期亏损只有转化为更强的模型、更可用的产品和可持续收入，才构成长期竞争力。</strong></p>
+                    </div>
+                </article>
+
+                <article class="module" id="macro-roadmap">
+                    <div class="module-heading" data-reveal><span class="module-index">01.3</span><div><p class="module-kicker">Technology Roadmap</p><h4>大模型技术迭代时间线：从模型强不强到模型能不能真正地完成任务、走进现实</h4><p class="module-description">技术底座能力、执行系统和落地方式同时推进，彼此加强。点击泳道路线或时间轴里程碑查看解释；筛选按钮用于突出不同主线。</p></div></div>
+                    <div class="chart-shell" data-reveal>
+                        <div class="chart-head"><div><h5>大模型技术路线泳道图</h5><p>能力层让模型更“强”，系统层让模型“能干完活”，落地层让模型“可用”。</p></div><span class="chart-badge">2020 Q1 — 2026 Q4</span></div>
+                        <div class="segmented" aria-label="筛选技术路线主线"><button class="active" data-roadmap-filter="all" aria-pressed="true">全部主线</button><button data-roadmap-filter="capability" aria-pressed="false">能力层</button><button data-roadmap-filter="system" aria-pressed="false">系统层</button><button data-roadmap-filter="delivery" aria-pressed="false">落地层</button></div>
+                        <div class="roadmap-scroll" tabindex="0" aria-label="技术泳道图，可横向滚动">
+                            <div class="roadmap-canvas">
+                                <div class="roadmap-axis" aria-hidden="true"><span class="roadmap-year" style="left:0%">2020</span><span class="roadmap-year" style="left:42.857%">2023</span><span class="roadmap-year" style="left:57.143%">2024</span><span class="roadmap-year" style="left:71.429%">2025</span><span class="roadmap-year" style="left:85.714%">2026</span><span class="roadmap-year" style="left:100%">2027</span></div>
+                                <div id="roadmapLanes"></div>
+                                <div class="milestone-lane"><div class="milestone-label">关键里程碑<br><small>点击圆点查看</small></div><div class="milestone-track" id="milestoneTrack"></div></div>
+                            </div>
+                        </div>
+                        <div class="roadmap-detail" id="roadmapDetail" aria-live="polite"></div>
+                        <p class="macro-caption">时间口径更新：参考表中的 Kimi K3.1 Pro 已按实际发布日期从 2026 Q3 调整至 2026 Q4；Gemini 4 Argon 与 Dots 保留在 2026 Q3。</p>
+                    </div>
+                </article>
+
+                <article class="module" id="macro-direction">
+                    <div class="module-heading" data-reveal><span class="module-index">01.4</span><div><p class="module-kicker">Competitive Directions</p><h4>模型厂商近期的竞争方向：向上、向下、向外</h4><p class="module-description">向上争夺高价值长任务，向下压低高频任务成本，向外占据云、交付和终端入口。</p></div></div>
+                    <section class="direction-block">
+                        <div class="direction-title" data-reveal><span>向上 / UP</span><h5>突破长程任务：从“一问一答”到持续执行</h5></div>
+                        <p class="direction-copy" data-reveal>向上-突破长程任务：从“一问一答”升级到“<strong>多步骤、跨会话、能持续执行的长任务</strong>”。如 Google Gemini 4 Argon、OpenAI Dots（DevDay）、Meta Muse Wonder、Kimi K3.1 Pro。为什么卷这个方向——<strong>单轮问答已商品化，没有稀缺性无法获得溢价</strong>，厂商转而竞争“<strong>失败代价高、链路长、原本人力价值高</strong>”的任务（如软件工程、法律、金融场景）</p>
+                        <div class="model-card-grid" data-reveal>
+                            <div class="model-card"><span class="model-org">Google</span><h6>Gemini 4 Argon</h6><p>面向长程知识工作与自动化，提供 1M 级上下文与长输出配置；在 v5.0 发布时的 AutomationBench-AA 上领先。</p><div class="model-metric"><strong>78%</strong><span>AutomationBench-AA<br>AA v5.0 智能指数：50</span></div><small>长程任务 / 自动化</small></div>
+                            <div class="model-card"><span class="model-org">OpenAI</span><h6>Dots</h6><p>基于 GPT-6 Astra 的持续在线代理，拥有独立云端计算机和浏览器，在任务受阻时寻找替代路径。</p><div class="model-metric"><strong>57</strong><span>GPT-6 Astra / AA v5.0 智能指数</span></div><small>持续在线 / 云端执行</small></div>
+                            <div class="model-card"><span class="model-org">Meta</span><h6>Muse Wonder</h6><p>以 Active Memory、Active Focus 推进跨会话持续工作；Wonder Full 在 GDP.pdf 上达到 33% all-pass。</p><div class="model-metric"><strong>50</strong><span>Wonder Full / AA v5.0 智能指数</span></div><small>主动记忆 / 主动聚焦</small></div>
+                            <div class="model-card"><span class="model-org">Moonshot AI</span><h6>Kimi K3.1 Pro</h6><p>支持 1M 上下文，强化终端与长链路任务能力；AA v5.0 智能指数为 46。</p><div class="model-metric"><strong>67%</strong><span>Terminal-Bench 4.0</span></div><small>v5.0 发布时权重尚未发布</small></div>
+                        </div>
+                        <div class="source-row" data-reveal><a href="https://www.pymnts.com/news/artificial-intelligence/2026/meta-raises-its-ai-game-as-google-opens-gemini-4-argon/" target="_blank" rel="noreferrer">Gemini 4 Argon / Meta Muse Wonder</a><a href="https://explainx.ai/blog/openai-dots-always-on-agents-devday-2026" target="_blank" rel="noreferrer">OpenAI Dots</a><a href="https://artificialanalysis.ai/articles/artificial-analysis-intelligence-index-v5" target="_blank" rel="noreferrer">Artificial Analysis v5.0</a><a href="https://artificialanalysis.ai/articles/gemini-4-carbon-new-number-1" target="_blank" rel="noreferrer">Gemini 4 Carbon 榜单更新</a></div>
+                    </section>
+
+                    <section class="direction-block">
+                        <div class="direction-title" data-reveal><span>向下 / DOWN</span><h5>压低高频任务成本：智能上移与成本下移同时发生</h5></div>
+                        <p class="direction-copy" data-reveal>向下-压低高频任务成本：<strong>用更小的模型、更省的算力，把“日常高频任务”的成本打下来</strong>，让 AI 能渗透到那些“量大、单价低”的场景。——结合模型、智能指数、单个任务成本（按输入、缓存、推理和输出 Token 价格及实际用量计算的加权平均成本，一个“Intelligence Index 标准评测任务”）画图</p>
+                        <div class="chart-shell" data-reveal>
+                            <div class="chart-head"><div><h5>能力—成本前沿散点图</h5><p>纵轴越往上能力越强，横轴越往左成本越低；点击圆点或从下拉框选择模型。横轴使用对数尺度。</p></div><span class="chart-badge">Intelligence Index v5.0 · 核对至 2026-10-29</span></div>
+                            <section class="index-explainer" aria-labelledby="indexExplainerTitle">
+                                <div class="index-explainer-head"><div><span>先读懂纵轴</span><h6 id="indexExplainerTitle">Intelligence Index 是什么？</h6></div><a href="https://artificialanalysis.ai/articles/artificial-analysis-intelligence-index-v5" target="_blank" rel="noreferrer">官方方法 ↗</a></div>
+                                <p><strong>它是 Artificial Analysis 的综合能力指数，不是某一次考试，也不是模型参数或价格。</strong>v5.0 将 <strong>9 项评测</strong>合成一个分数，用来比较模型在真实使用相关任务上的综合能力；<strong>分数越高，综合能力越强</strong>。</p>
+                                <div class="index-weight-grid">
+                                    <div><strong>知识工作｜25%</strong><span>AA-Briefcase 15%<br>AutomationBench-AA 5%<br>GDP.pdf 5%</span></div>
+                                    <div><strong>编程｜25%</strong><span>FrontierCode 2.0 15%<br>Terminal-Bench 4.0 10%</span></div>
+                                    <div><strong>科学｜25%</strong><span>Terminal-Bench-Science 15%<br>CritPt v2 hard subset 10%</span></div>
+                                    <div><strong>通用｜25%</strong><span>AA-Omniscience v1.1 15%<br>（准确性 10%＋非幻觉 5%）<br>HLE-Diamond 10%</span></div>
+                                </div>
+                                <p class="index-method-note"><strong>60% 的指数权重</strong>来自私有测试集或保留答案的评测，以减少公开题库污染的影响。它不等于特定企业工作流的成功率，所以要与图中的单任务成本一起读。</p>
+                            </section>
+                            <div class="segmented" aria-label="筛选成本前沿模型"><button class="active" data-cost-filter="all" aria-pressed="true">全部模型</button><button data-cost-filter="china" aria-pressed="false">中国模型</button><button data-cost-filter="global" aria-pressed="false">海外模型</button><button data-cost-filter="open" aria-pressed="false">开放权重</button></div>
+                            <div class="frontier-layout"><div class="scatter-wrap"><svg class="cost-scatter" id="costScatter" viewBox="0 0 860 480" role="group" aria-label="模型智能指数与单任务成本散点图"></svg><select class="scatter-select" id="costModelSelect" aria-label="选择模型查看详细数据"></select></div><aside class="model-detail" id="costModelDetail" aria-live="polite"></aside></div>
+                            <p class="macro-caption">成本是 Artificial Analysis 对标准评测任务按输入、缓存、推理和输出 Token 价格及实际用量计算的加权平均成本，不等于所有真实业务任务成本。虚线为当前筛选范围内的能力—成本前沿。Google 模型采用标准价格而非促销价；“开放权重”含限制许可，不等同于 OSI 开源。</p>
+                        </div>
+                        <p class="direction-copy frontier-conclusion" data-reveal>“<strong>旗舰更贵</strong>”和“<strong>Flash 更便宜</strong>”同时发生，按照任务价值分层。<strong>成本前沿不是“越便宜越好”，而是每一档预算下能力更高的连线：</strong>MiniMax M3.1 Flash 与 DeepSeek V4.1 Flash 1017 分别以<strong>约 0.49／0.60 美元每任务达到 29／32 分</strong>，构成低成本端；GPT-6.1 Terra／Sol 则以<strong>约 0.96／1.27 美元达到 51／55 分</strong>，把中低成本段的能力前沿继续上推；最高分段仍需支付更高成本。<strong>高频任务优先比较每个成功任务的成本，高难度长链任务则不能为省 Token 牺牲完成率。</strong></p>
+                        <div class="tier-pair" data-reveal><div class="tier-card"><strong>旗舰 / Frontier</strong><p>旗舰对标高难度长链路的场景（软件工程、长文档深度分析、科研推理、法律与金融场景）。<strong>客户为完成任务、减少返工和缩短交付时间付费</strong>，而不是只购买低价 Token。</p></div><div class="tier-card flash"><strong>Flash / High Frequency</strong><p>Flash 对标高频日常场景（日常问答、客服对话、文本摘要等）。核心问题从“每 token 价格”转向“<strong>每个成功任务成本</strong>”。</p></div></div>
+                    </section>
+
+                    <section class="direction-block">
+                        <div class="direction-title" data-reveal><span>向外 / OUT</span><h5>占据云、交付和终端入口</h5></div>
+                        <p class="direction-copy" data-reveal>向外-占据云、交付和终端入口：模型能力趋同后（规模定律的边际收益越来越低），<strong>竞争上移到“分发”</strong>。海外巨头中，Google 拥有全栈入口：<strong>芯片 TPU + 云 + 搜索 + 办公 + 终端</strong>。</p>
+                        <div class="entrance-grid" data-reveal>
+                            <div class="entrance-card"><span>01 / CLOUD</span><h6>云入口</h6><p>国内阿里云百炼、火山方舟聚合托管别家模型（DeepSeek、GLM、Kimi、MiniMax 等），<strong>平台层锁定强于模型层锁定</strong>。</p><div class="stack-line"><span>模型聚合</span><span>托管</span><span>平台锁定</span></div></div>
+                            <div class="entrance-card"><span>02 / DELIVERY</span><h6>交付入口</h6><p>交付（delivery），是把模型真正装进企业的生产系统里，让它跑起来、用起来、产生价值的过程。包括四件事——<strong>集成（接到企业系统）、定制（针对业务微调）、培训（教员工用）、运维（持续维护）</strong>，授人以渔。</p><p>Anthropic 投 <strong>1 亿美元</strong>建 Claude Frontier Academy，目标是 2027 年底前培训 <strong>10,000 名工程师</strong>——因为瓶颈已经从“模型供给”转移到“<strong>交付人才</strong>”。</p><div class="stack-line"><span>集成</span><span>定制</span><span>培训</span><span>运维</span></div></div>
+                            <div class="entrance-card"><span>03 / DEVICE</span><h6>终端入口</h6><p>Meta 靠智能眼镜 + 社交，小米靠手机端侧，都在抢“<strong>手机、PC、眼镜、汽车</strong>”这些<strong>离用户最近的硬件入口</strong>。</p><div class="stack-line"><span>手机</span><span>PC</span><span>眼镜</span><span>汽车</span></div></div>
+                        </div>
+                        <div class="source-row" data-reveal><a href="https://explainx.ai/blog/claude-frontier-academy-100m-10000-engineers-2026" target="_blank" rel="noreferrer">Claude Frontier Academy</a></div>
+                    </section>
+                </article>
+
+                <article class="module" id="macro-applications">
+                    <div class="module-heading" data-reveal><span class="module-index">01.5</span><div><p class="module-kicker">Product Applications</p><h4>产品应用方向：任务价值、落地卡点与验证指标</h4><p class="module-description">点击板块才展开具体内容。这里把原表格改成更直接的大白话：为什么可能成立、现在卡在哪里、最该验证什么。</p></div></div>
+                    <div class="application-grid" data-reveal>
+                        <button class="application-card" data-application="coding" aria-expanded="false" aria-controls="applicationDetail"><span>01 / CODING</span><strong>Coding / 软件工程</strong><small>反馈能自动验证，企业提效价值清晰</small><em>＋</em></button>
+                        <button class="application-card" data-application="knowledge" aria-expanded="false" aria-controls="applicationDetail"><span>02 / KNOWLEDGE WORK</span><strong>通用知识工作</strong><small>任务覆盖面大，关键在跨系统交付</small><em>＋</em></button>
+                        <button class="application-card" data-application="security" aria-expanded="false" aria-controls="applicationDetail"><span>03 / SECURITY</span><strong>网络安全</strong><small>漏洞价值高，但必须受控、可审计</small><em>＋</em></button>
+                        <button class="application-card" data-application="professional" aria-expanded="false" aria-controls="applicationDetail"><span>04 / PROFESSIONAL</span><strong>法律 / 金融 / 税务</strong><small>专业人力贵，准确与责任是门槛</small><em>＋</em></button>
+                        <button class="application-card" data-application="marketing" aria-expanded="false" aria-controls="applicationDetail"><span>05 / MARKETING</span><strong>营销与内容生成</strong><small>降低素材成本，提高测试频率</small><em>＋</em></button>
+                        <button class="application-card" data-application="education" aria-expanded="false" aria-controls="applicationDetail"><span>06 / EDUCATION</span><strong>教育</strong><small>个性化反馈需求广，效果需要验证</small><em>＋</em></button>
+                        <button class="application-card" data-application="service" aria-expanded="false" aria-controls="applicationDetail"><span>07 / SERVICE &amp; SALES</span><strong>客服与销售</strong><small>标准流程高频，价值容易算清</small><em>＋</em></button>
+                        <button class="application-card" data-application="hardware" aria-expanded="false" aria-controls="applicationDetail"><span>08 / PERSONAL DEVICE</span><strong>智能硬件与个人助手</strong><small>低时延、跨应用执行与新入口</small><em>＋</em></button>
+                        <button class="application-card" data-application="robotics" aria-expanded="false" aria-controls="applicationDetail"><span>09 / PHYSICAL AI</span><strong>智驾与机器人</strong><small>物理任务价值大，安全闭环最关键</small><em>＋</em></button>
+                    </div>
+                    <div class="application-detail" id="applicationDetail" aria-live="polite" hidden></div>
+                    <div class="macro-method" data-reveal><strong>数据与判断口径：</strong>检索截至 2026-10-29；财务以 2026 H1 为主，Anthropic Q2 单列；能力—成本采用 2026-10-28 发布的 Artificial Analysis Intelligence Index v5.0，并补入 10 月 29 日 Gemini 4 Carbon 榜单更新。财务币种、报告期、盈利口径和模型推理配置均单独标注，避免把“收入增长”“季度经营盈利”“H1 净利润”和“现金消耗”混为一谈。</div>
+                </article>
+            </div></div>
+        </section>
+
+        <!-- ===========================================
+             02 RSI：定义、技术难点、路线、竞品与判断
+             =========================================== -->
+        <section class="chapter" id="rsi" data-chapter="rsi">
+            <div class="chapter-hero hero-sky"><div class="hero-content"><p class="eyebrow">02 / Recursive Self-Improvement</p><h2 data-editable>从 AI4AI<br>走向 RSI</h2><p class="hero-description" data-editable>AI 能执行研发任务，不等于已经具备真正的自我改进能力。关键在于能否自主发现方法、实现实质提升，并持续、多轮、可靠地重复。</p></div><span class="chapter-number">02</span><div class="scroll-cue">下滑进入 RSI 研究</div></div>
+            <div class="chapter-body"><div class="content-shell">
+                <div class="rsi-definition" data-reveal>
+                    <section class="rsi-definition-card">
+                        <span class="rsi-definition-label">AI4AI / 研发自动化</span>
+                        <h3>AI 执行研发任务</h3>
+                        <p data-editable>AI4AI：AI 能够执行原本由人类完成的研发任务，并不意味着它已经具备真正的自我改进能力。</p>
+                    </section>
+                    <div class="rsi-definition-arrow" aria-hidden="true"><span>→</span></div>
+                    <section class="rsi-definition-card rsi-target">
+                        <span class="rsi-definition-label">RSI / 递归自我改进</span>
+                        <h3>AI 持续改进自身</h3>
+                        <p data-editable>RSI：AI 能否自主发现新的技术方法，并通过这些方法实现自身能力的实质性提升，并能持续、多轮、可靠地重复这一过程。</p>
+                    </section>
+                    <div class="rsi-criteria" aria-label="判断 RSI 的四个必要条件">
+                        <div class="rsi-criterion"><span>01 / DISCOVER</span><strong>自主发现新的技术方法</strong></div>
+                        <div class="rsi-criterion"><span>02 / IMPROVE</span><strong>自身能力实质性提升</strong></div>
+                        <div class="rsi-criterion"><span>03 / RECUR</span><strong>改进进入下一代并持续多轮</strong></div>
+                        <div class="rsi-criterion"><span>04 / REPEAT</span><strong>过程可靠、可以重复</strong></div>
+                    </div>
+                </div>
+                <nav class="rsi-local-nav" aria-label="RSI 研究目录" data-reveal><button data-goto="rsi-challenges">01 技术难点</button><button data-goto="rsi-routes">02 技术路线</button><button data-goto="rsi-competitors">03 竞品分析</button><button data-goto="rsi-judgments">04 几点判断</button></nav>
+
+                <article class="module" id="rsi-challenges">
+                    <div class="module-heading" data-reveal><span class="module-index">02.1</span><div><p class="module-kicker">Technical Bottlenecks</p><h4 data-editable>RSI 实践中的技术难点</h4><p class="module-description" data-editable>从开放探索到安全约束，真正的难点不是“自动跑一次”，而是让改进有价值、可验证，并能进入下一轮。</p></div></div>
+                    <div class="rsi-challenge-grid" role="tablist" aria-label="RSI 六项技术难点" data-reveal>
+                        <button class="rsi-challenge-tab active" role="tab" aria-selected="true" aria-controls="rsi-challenge-1" data-rsi-challenge="1"><span class="rsi-tab-no">01 / OPEN EXPLORATION</span><strong>从封闭搜索<br>走向开放探索</strong><small>突破人类预设的搜索空间，而不是简单堆叠复杂动作。</small></button>
+                        <button class="rsi-challenge-tab" role="tab" aria-selected="false" aria-controls="rsi-challenge-2" data-rsi-challenge="2" tabindex="-1"><span class="rsi-tab-no">02 / RESEARCH TASTE</span><strong>科研 Taste</strong><small>最难代替的是问题选择、方向判断与价值判断。</small></button>
+                        <button class="rsi-challenge-tab" role="tab" aria-selected="false" aria-controls="rsi-challenge-3" data-rsi-challenge="3" tabindex="-1"><span class="rsi-tab-no">03 / VERIFIER & REWARD</span><strong>Verifier 与奖励信号</strong><small>便宜、广泛、自动化的反馈，往往也最容易被利用。</small></button>
+                        <button class="rsi-challenge-tab" role="tab" aria-selected="false" aria-controls="rsi-challenge-4" data-rsi-challenge="4" tabindex="-1"><span class="rsi-tab-no">04 / RECURSIVE STABILITY</span><strong>多轮稳定性<br>持续递归</strong><small>改进必须进入下一代，并且下一轮仍能产生有效改进。</small></button>
+                        <button class="rsi-challenge-tab" role="tab" aria-selected="false" aria-controls="rsi-challenge-5" data-rsi-challenge="5" tabindex="-1"><span class="rsi-tab-no">05 / PHYSICAL LIMITS</span><strong>算力、能源与<br>科研边际收益</strong><small>递归每一圈都有实验、训练与验证的物理成本。</small></button>
+                        <button class="rsi-challenge-tab" role="tab" aria-selected="false" aria-controls="rsi-challenge-6" data-rsi-challenge="6" tabindex="-1"><span class="rsi-tab-no">06 / ALIGNMENT & SAFETY</span><strong>对齐与安全</strong><small>能力增长不能脱离成本约束、人类意图与安全要求。</small></button>
+                    </div>
+                    <div class="rsi-challenge-panels" data-reveal>
+                        <section class="rsi-challenge-detail active" id="rsi-challenge-1" role="tabpanel" data-rsi-challenge-panel="1"><div class="rsi-detail-heading"><span>01 / OPEN EXPLORATION</span><h5>从封闭搜索走向开放探索</h5></div><div class="rsi-detail-copy"><p>早期形式化方法、自动优化、AutoML 和元学习，看似都在自动改进模型，但本质上仍依赖人类预先设计的规则、算法和搜索空间。搜索空间本身是由人类定义的。因此，AI 只能找到给定空间里的更优解，却很难自主突破人类预设的边界。</p><p>大模型带来的本质变化，不只是自动化程度更高，而是“让这一搜索空间变得更加开放”。在一定安全约束下，AI 可以像研究人员一样提出假设、探索技术路径、尝试不同方法，使自我改进“从预设空间内的优化，逐步走向更加开放的自主探索”。但开放探索不等于动作越复杂越高级。调参不一定低级，改架构也不一定高级；真正重要的是系统对问题的理解有多深、探索空间是否足够大、能否形成关键洞察。一个深刻洞察最终可能只体现为改两行代码，其价值却可能远高于盲目搜索大量复杂方案。</p><p>当前 AI 更擅长“模式创新”，包括概念迁移、已有方法组合和重复性应用；对类似群论、相对论那样重新建立问题表达框架的“概念突破”，仍然力有不足。现在 AI 还做不了这样的研究。它更多从过去的派生中做匹配，缺乏对新式结构的即时理解，可能需要新的算法，而非仅扩大现有训练规模。</p></div></section>
+                        <section class="rsi-challenge-detail" id="rsi-challenge-2" role="tabpanel" data-rsi-challenge-panel="2" hidden><div class="rsi-detail-heading"><span>02 / RESEARCH TASTE</span><h5>科研 Taste：最难代替的是问题选择与价值判断</h5></div><div class="rsi-detail-copy"><p>科研品味包括：判断什么问题值得研究、哪个方向更有价值、什么想法真正具有创新性，以及一项成果是否对人类有实际意义。陈勇超把科研能力拆成两部分：一是提出创新性想法、判断研究方向的能力，二是执行具体科研任务的能力。当前自动化更容易解决后者，真正的瓶颈越来越集中于前者。</p><p>AI 与人类的品味差异不一定来自智力不足。即使 AI 在某些任务上超过人类，也不代表它理解人的偏好、需求和价值标准。陈勇超用“人类与猫”作比：人类整体认知能力远高于猫，却未必真正理解猫喜欢什么。“即使 AI 的智能水平进一步超越人类，它也不一定能够准确理解人类真正需要什么，更未必能自主判断哪些研究方向值得探索、哪些成果具有实际价值。”</p></div></section>
+                        <section class="rsi-challenge-detail" id="rsi-challenge-3" role="tabpanel" data-rsi-challenge-panel="3" hidden><div class="rsi-detail-heading"><span>03 / VERIFIER & REWARD</span><h5>Verifier 与奖励信号</h5></div><div class="rsi-detail-copy"><p>越是便宜、广泛、自动化的反馈，越容易被系统利用；越是可靠、深刻的判断，越难规模化。模型可以作为验证器，大规模发现粗浅问题；人类更擅长识别复杂、深层、重要的信号。因此，未来更可能是模型验证器与人类评分标准结合，而不是简单地让 AI 又执行又当裁判。</p><p>解决方向不是无限增加细分指标，因为过细指标同样可能造成局部优化和目标偏移。陈勇超提出：“最核心的是先确定几个可靠的总体指标，例如实际效果能否持续提升、成本能否持续下降，以及是否始终符合安全要求。”再由模型围绕可靠的总体目标，自主决定具体优化路径。</p></div></section>
+                        <section class="rsi-challenge-detail" id="rsi-challenge-4" role="tabpanel" data-rsi-challenge-panel="4" hidden><div class="rsi-detail-heading"><span>04 / RECURSIVE STABILITY</span><h5>多轮稳定性，持续递归</h5></div><div class="rsi-detail-copy"><p>RSI 最容易被误读之处，是把一次性后训练收益、单轮工程优化或固定基准提升称为递归自我改进。真正的递归要求改进进入下一代模型或系统，并且下一轮能够继续产生有效改进，而不是收益迅速耗尽。</p></div></section>
+                        <section class="rsi-challenge-detail" id="rsi-challenge-5" role="tabpanel" data-rsi-challenge-panel="5" hidden><div class="rsi-detail-heading"><span>05 / PHYSICAL LIMITS</span><h5>算力、能源与科研边际收益</h5></div><div class="rsi-detail-copy"><p>限制首先来自物理规律和算力、能源：递归每一圈都需要实验、训练与验证，物理上未必可持续。其次来自科研的边际收益递减：研究初期少量投入可能带来巨大进展；容易的问题逐渐解决后，后续同等投入带来的收益可能下降。</p></div></section>
+                        <section class="rsi-challenge-detail" id="rsi-challenge-6" role="tabpanel" data-rsi-challenge-panel="6" hidden><div class="rsi-detail-heading"><span>06 / ALIGNMENT & SAFETY</span><h5>对齐与安全</h5></div><div class="rsi-detail-copy"><p>RSI 的安全风险不仅是通用大模型的幻觉或误用，还包括改进方向偏离人类意图、奖励黑客、自我评审强化错误，以及自动化系统在较少人工监督下连续修改自身。高度自动化必须配套细致的基准测试、验证机制，并与领域专家共同设计奖励机制和评价指标。</p><p>陈勇超认为当前安全讨论是合理的，并将其类比为原子弹研发：技术尚未成熟时就需要考虑未来风险。但他的立场不是停止研发，而是安全与技术研发并行。可靠的总体指标应同时约束实际效果、成本和安全要求，而不能只优化能力增长。</p></div></section>
+                    </div>
+                </article>
+
+                <article class="module" id="rsi-routes">
+                    <div class="module-heading" data-reveal><span class="module-index">02.2</span><div><p class="module-kicker">Technical Routes</p><h4 data-editable>技术路线对比：<br>优化对象不同，护城河与瓶颈也不同</h4><p class="module-description" data-editable>六条路线分别在模型底层、科研流程、模型外层、轨迹、架构配置与软硬件层面寻找改进杠杆。</p></div></div>
+                    <div class="rsi-route-grid" data-reveal>
+                        <section class="rsi-route-card rsi-route-featured"><span class="rsi-route-badge">NAIVEAI 路线</span><div class="rsi-route-head"><span class="rsi-route-no">01</span><h5>基础模型＋<br>AI-centered R&amp;D</h5></div><p class="rsi-route-reps">Recursive、NaiveAI、超衍智能</p><div class="rsi-route-row"><span>优化对象与机制</span><p>把架构探索、训练、数据和研发能力做进模型底层，并以 AI 参与下一代模型研发。</p></div><div class="rsi-route-row"><span>公开证据／优势</span><p>已有 Flint、Naive-N0.5-Flash、Apex-35B-V1.0 开放权重模型，公开资料相对完整。</p></div></section>
+                        <section class="rsi-route-card"><div class="rsi-route-head"><span class="rsi-route-no">02</span><h5>自动科研<br>Agent／系统</h5></div><p class="rsi-route-reps">Eureka Machine、Faraday、FARS</p><div class="rsi-route-row"><span>优化对象与机制</span><p>自动完成文献、假设、代码、实验、分析和论文等流程。</p></div><div class="rsi-route-row"><span>公开证据／优势</span><p>Faraday 有论文复现评测；FARS 证明系统可长时间、大规模运行。</p></div></section>
+                        <section class="rsi-route-card"><div class="rsi-route-head"><span class="rsi-route-no">03</span><h5>模型外层 Agent／<br>Harness 优化</h5></div><p class="rsi-route-reps">Poetiq、NeoHorse、M2.7、InfraAgent</p><div class="rsi-route-row"><span>优化对象与机制</span><p>优化提示词、代码、工具链、脚手架和执行轨迹，再反馈模型或工作流。</p></div><div class="rsi-route-row"><span>公开证据／优势</span><p>资本效率较高，容易接入现有模型，工程反馈清晰。</p></div></section>
+                        <section class="rsi-route-card"><div class="rsi-route-head"><span class="rsi-route-no">04</span><h5>多智能体优化＋<br>轨迹蒸馏</h5></div><p class="rsi-route-reps">Sakana AI MASS</p><div class="rsi-route-row"><span>优化对象与机制</span><p>同一模型充当执行者、工作流优化者和评审，再把优秀轨迹蒸馏回模型。</p></div><div class="rsi-route-row"><span>公开证据／优势</span><p>已展示工作流优化与模型再训练的结合，两轮后单位输出 Token 得分提高。</p></div></section>
+                        <section class="rsi-route-card"><div class="rsi-route-head"><span class="rsi-route-no">05</span><h5>元模型直接生成<br>模型／配置</h5></div><p class="rsi-route-reps">元环智能 MetaCircle</p><div class="rsi-route-row"><span>优化对象与机制</span><p>学习架构、训练超参数与真实训练表现之间的规律，直接生成模型和训练配置。</p></div><div class="rsi-route-row"><span>公开证据／优势</span><p>有望减少大规模试错，形成与 LLM 主线正交的差异化路线。</p></div></section>
+                        <section class="rsi-route-card"><div class="rsi-route-head"><span class="rsi-route-no">06</span><h5>软硬件递归<br>共同进化</h5></div><p class="rsi-route-reps">Ricursive Intelligence</p><div class="rsi-route-row"><span>优化对象与机制</span><p>AI 设计更好的芯片，芯片再训练更强 AI。</p></div><div class="rsi-route-row"><span>公开证据／优势</span><p>创始团队此前 AlphaChip 已用于多代 Google TPU，具备相关技术积累。</p></div></section>
+                    </div>
+                </article>
+
+                <article class="module" id="rsi-competitors">
+                    <div class="module-heading" data-reveal><span class="module-index">02.3</span><div><p class="module-kicker">Competitive Landscape</p><h4 data-editable>竞品分析：同一坐标下看模型差异</h4><p class="module-description" data-editable>只比较 NaiveAI、超衍智能 Apex 与 Recursive：先看基座、参数与架构，再看公开评测；规格优势与跑分优势均不等同于完整 RSI 证据。</p></div></div>
+
+                    <div class="rsi-company-grid" data-reveal>
+                        <section class="rsi-company-card rsi-naive-card" data-competitor="naive"><div class="rsi-company-card-head"><span>01 / NAIVEAI</span><span class="rsi-company-tag">本公司</span></div><h5>NaiveAI</h5><a class="rsi-company-model" href="https://naive.ai/en/research/" target="_blank" rel="noopener noreferrer">Naive-N0.5-Flash <span>↗</span></a><p>309B MoE · 原生 1M 上下文 · AI-centered R&amp;D</p><nav class="rsi-official-links" aria-label="NaiveAI 官方链接"><a href="https://naive.ai/" target="_blank" rel="noopener noreferrer">公司官网 ↗</a><a href="https://huggingface.co/NaiveAI/Naive-N0.5-Flash" target="_blank" rel="noopener noreferrer">Hugging Face ↗</a><a href="https://github.com/NaiveAI-Labs/Naive-N0.5-Flash" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></section>
+                        <section class="rsi-company-card" data-competitor="apex"><div class="rsi-company-card-head"><span>02 / APEX INTELLIGENCE</span></div><h5>超衍智能 Apex</h5><a class="rsi-company-model" href="https://www.apexin.com/apex-35b/" target="_blank" rel="noopener noreferrer">Apex-35B-V1.0 <span>↗</span></a><p>35B Sparse MoE · 科研与通用能力 · Apex Research</p><nav class="rsi-official-links" aria-label="超衍智能 Apex 官方链接"><a href="https://www.apexin.com/" target="_blank" rel="noopener noreferrer">公司官网 ↗</a><a href="https://huggingface.co/Apexintelligence-AI/Apex-35B-V1.0" target="_blank" rel="noopener noreferrer">Hugging Face ↗</a><a href="https://github.com/apexin-ai/Apex-35B-V1.0" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></section>
+                        <section class="rsi-company-card" data-competitor="recursive"><div class="rsi-company-card-head"><span>03 / RECURSIVE</span></div><h5>Recursive</h5><a class="rsi-company-model" href="https://www.recursive.com/updates/introducing-recursive-flint" target="_blank" rel="noopener noreferrer">Flint <span>↗</span></a><p>39.8B MoE · 从零训练 · 面向 Coding Agents</p><nav class="rsi-official-links" aria-label="Recursive 官方链接"><a href="https://www.recursive.com/" target="_blank" rel="noopener noreferrer">公司官网 ↗</a><a href="https://huggingface.co/RecursiveSI/flint" target="_blank" rel="noopener noreferrer">Hugging Face ↗</a><a href="https://github.com/recursive-oss/rec" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav></section>
+                    </div>
+
+                    <section class="rsi-compare-block" data-reveal>
+                        <div class="rsi-compare-heading"><div><span>01 / MODEL SPECIFICATIONS</span><h5>模型规格矩阵</h5></div><small>同一行横向比较，手机端可独立横滑 →</small></div>
+                        <div class="rsi-spec-wrap" tabindex="0" aria-label="三家公司模型规格矩阵，可横向滚动">
+                            <table class="rsi-spec-table">
+                                <thead><tr><th>公司／模型</th><th>基座与训练</th><th>架构</th><th>总参数</th><th>激活参数</th><th>上下文</th><th>许可</th></tr></thead>
+                                <tbody>
+                                    <tr class="rsi-naive-row"><td><strong>NaiveAI</strong><span>Naive-N0.5-Flash</span></td><td>小米 MiMo-V2.5<br>继续中训练＋后训练</td><td>48 层 MoE<br>39 SWA＋9 DSA，无全注意力层</td><td><strong>309B</strong></td><td><strong>15.5B</strong></td><td><strong>原生 1M</strong></td><td>MIT</td></tr>
+                                    <tr><td><strong>超衍智能 Apex</strong><span>Apex-35B-V1.0</span></td><td>Qwen3.6-35B-A3B<br>中训练＋后训练</td><td>Sparse MoE<br>动态思考</td><td><strong>35B</strong></td><td><strong>约 3B</strong></td><td><strong>262,144</strong><br>输入输出共享</td><td>Apache 2.0</td></tr>
+                                    <tr><td><strong>Recursive</strong><span>Flint</span></td><td>从零训练<br>预训练至强化学习</td><td>49 层 MoE：2 Dense＋47 MoE<br>35 SWA＋14 Full Attention</td><td><strong>39.8B</strong></td><td><strong>约 2.5B</strong><br>含输出头</td><td><strong>262,144</strong><br>输入输出共享</td><td>Apache 2.0</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="rsi-compare-block" data-reveal>
+                        <div class="rsi-compare-heading"><div><span>02 / SCALE &amp; EFFICIENCY</span><h5>规模与上下文：各指标统一刻度</h5></div><small>同一指标内比较条长，不跨指标比较</small></div>
+                        <div class="rsi-scale-grid">
+                            <section class="rsi-scale-chart" aria-label="总参数对比，统一刻度 0 至 320B"><div class="rsi-scale-title"><h6>总参数</h6><span>0–320B</span></div><p>反映模型规模，不直接代表能力或部署优劣。</p><div class="rsi-scale-row" data-company="naive"><span>NaiveAI</span><div><i style="--value:96.5625%"></i></div><strong>309B</strong></div><div class="rsi-scale-row" data-company="apex"><span>Apex</span><div><i style="--value:10.9375%"></i></div><strong>35B</strong></div><div class="rsi-scale-row" data-company="recursive"><span>Flint</span><div><i style="--value:12.4375%"></i></div><strong>39.8B</strong></div><div class="rsi-scale-axis"><span></span><div><i>0</i><i>160B</i><i>320B</i></div></div></section>
+                            <section class="rsi-scale-chart" aria-label="激活参数对比，统一刻度 0 至 16B"><div class="rsi-scale-title"><h6>每 token 激活参数</h6><span>0–16B</span></div><p>越低通常越利于计算效率，实际成本仍取决于系统。</p><div class="rsi-scale-row" data-company="naive"><span>NaiveAI</span><div><i style="--value:96.875%"></i></div><strong>15.5B</strong></div><div class="rsi-scale-row" data-company="apex"><span>Apex</span><div><i style="--value:18.75%"></i></div><strong>约 3B</strong></div><div class="rsi-scale-row" data-company="recursive"><span>Flint</span><div><i style="--value:15.625%"></i></div><strong>约 2.5B</strong></div><div class="rsi-scale-axis"><span></span><div><i>0</i><i>8B</i><i>16B</i></div></div></section>
+                            <section class="rsi-scale-chart" aria-label="上下文窗口对比，统一刻度 0 至 1M tokens"><div class="rsi-scale-title"><h6>上下文窗口</h6><span>0–1M tokens</span></div><p>窗口长度是容量指标，不等于全程检索与推理质量。</p><div class="rsi-scale-row" data-company="naive"><span>NaiveAI</span><div><i style="--value:100%"></i></div><strong>1M</strong></div><div class="rsi-scale-row" data-company="apex"><span>Apex</span><div><i style="--value:26.2144%"></i></div><strong>262K</strong></div><div class="rsi-scale-row" data-company="recursive"><span>Flint</span><div><i style="--value:26.2144%"></i></div><strong>262K</strong></div><div class="rsi-scale-axis"><span></span><div><i>0</i><i>500K</i><i>1M</i></div></div></section>
+                        </div>
+                        <div class="rsi-spec-insights"><div><span>NAIVEAI</span><strong>长上下文突出</strong><p>原生 1M，公开窗口长度约为另外两家的 3.8 倍。</p></div><div><span>APEX</span><strong>较小模型规模</strong><p>35B 总参数、约 3B 激活，强调科研与通用任务。</p></div><div><span>FLINT</span><strong>激活参数最低</strong><p>约 2.5B 激活，从零训练而非基于第三方基座。</p></div></div>
+                    </section>
+
+                    <section class="rsi-compare-block rsi-benchmark-block" data-reveal>
+                        <div class="rsi-compare-heading"><div><span>03 / PUBLIC EVALUATIONS</span><h5>公开评测：统一 0–100 横轴</h5></div><div class="rsi-chart-legend" aria-label="公司颜色图例"><span data-company="naive">NaiveAI</span><span data-company="apex">Apex</span><span data-company="recursive">Flint</span></div></div>
+                        <p class="rsi-chart-intro">条形越长，该项公开分数越高；“—”表示未按该版本或同表口径披露，不补零。点击分类查看。</p>
+                        <div class="rsi-benchmark-tabs" role="tablist" aria-label="评测分类"><button class="active" id="rsi-benchmark-tab-coding" role="tab" aria-selected="true" aria-controls="rsi-benchmark-coding" data-rsi-benchmark="coding">编程与 Agent <span>05</span></button><button id="rsi-benchmark-tab-research" role="tab" aria-selected="false" aria-controls="rsi-benchmark-research" data-rsi-benchmark="research" tabindex="-1">科研与推理 <span>05</span></button></div>
+                        <div class="rsi-benchmark-panel active" id="rsi-benchmark-coding" role="tabpanel" aria-labelledby="rsi-benchmark-tab-coding" data-rsi-benchmark-panel="coding">
+                            <div class="rsi-benchmark-scale" aria-hidden="true"><span></span><div><i>0</i><i>25</i><i>50</i><i>75</i><i>100</i></div><span>分数</span></div>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>Terminal-Bench 2.1</strong><span>各家发布口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track"><i style="--score:86.7%"></i></div><strong>86.7</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:65.2%"></i></div><strong>65.2</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:54.9%"></i></div><strong>54.9</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>SWE-bench Pro</strong><span>Naive 发布口径 · 非 v2</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track"><i style="--score:73.6%"></i></div><strong>73.6</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此版本披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此版本披露</span></div><strong>—</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>SWE-bench Pro v2</strong><span>Apex／Flint 各自发布口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此版本披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:92.4%"></i></div><strong>92.4</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:89.7%"></i></div><strong>89.7</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>SWE-bench Verified</strong><span>No Internet · Apex 同表口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:73.4%"></i></div><strong>73.4</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:74.8%"></i></div><strong>74.8</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>LiveCodeBench v6</strong><span>Apex 同表口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:82.3%"></i></div><strong>82.3</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:85.1%"></i></div><strong>85.1</strong></div></section>
+                        </div>
+                        <div class="rsi-benchmark-panel" id="rsi-benchmark-research" role="tabpanel" aria-labelledby="rsi-benchmark-tab-research" data-rsi-benchmark-panel="research" hidden>
+                            <div class="rsi-benchmark-scale" aria-hidden="true"><span></span><div><i>0</i><i>25</i><i>50</i><i>75</i><i>100</i></div><span>分数</span></div>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>PaperBench</strong><span>Naive 自测＋Apex 同表口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track"><i style="--score:63.2%"></i></div><strong>63.2</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:60.9%"></i></div><strong>60.9</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:29.3%"></i></div><strong>29.3</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>MLE-bench-30</strong><span>Naive 发布口径 · 平均位置分</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track"><i style="--score:73.7%"></i></div><strong>73.7</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>GPQA Diamond</strong><span>Apex 同表口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:83.3%"></i></div><strong>83.3</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:66.2%"></i></div><strong>66.2</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>SciCode · Main Problem</strong><span>Apex 同表口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:62.6%"></i></div><strong>62.6</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:26.6%"></i></div><strong>26.6</strong></div></section>
+                            <section class="rsi-benchmark-row"><div class="rsi-benchmark-name"><strong>FrontierScience</strong><span>Apex 同表口径</span></div><div class="rsi-benchmark-bar" data-company="naive"><span>NaiveAI</span><div class="rsi-bar-track rsi-bar-missing"><span>未按此口径披露</span></div><strong>—</strong></div><div class="rsi-benchmark-bar" data-company="apex"><span>Apex</span><div class="rsi-bar-track"><i style="--score:40%"></i></div><strong>40.0</strong></div><div class="rsi-benchmark-bar" data-company="recursive"><span>Flint</span><div class="rsi-bar-track"><i style="--score:5%"></i></div><strong>5.0</strong></div></section>
+                        </div>
+                        <div class="rsi-source-note"><strong>读图边界</strong><p>统一坐标只统一显示范围，不会消除实验差异。各家 Harness、联网限制、采样设置和测试版本可能不同，因此不能将本图视为严格的第三方横评；Apex 同表项与 Flint 自有发布口径也不混写。公开高分不自动等于 RSI 能力。</p></div>
+                        <p class="rsi-table-caption">评测原表与测试说明：<a href="https://huggingface.co/NaiveAI/Naive-N0.5-Flash#evaluation-results" target="_blank" rel="noopener noreferrer">NaiveAI 模型卡 ↗</a><a href="https://github.com/apexin-ai/Apex-35B-V1.0#evaluation-results" target="_blank" rel="noopener noreferrer">Apex 模型卡 ↗</a><a href="https://huggingface.co/RecursiveSI/flint#evaluation" target="_blank" rel="noopener noreferrer">Flint 模型卡 ↗</a></p>
+                    </section>
+
+                    <section class="rsi-compare-block" data-reveal>
+                        <div class="rsi-compare-heading"><div><span>04 / EVIDENCE BOUNDARIES</span><h5>研究边界与融资口径</h5></div><small>保留公开事实与未证实能力的分界</small></div>
+                        <div class="rsi-evidence-grid">
+                            <section><span>NAIVEAI</span><div><h6>当前边界</h6><p>公开模型资料较完整，但 AI 参与研发深度和模型跑分仍主要依赖公司披露。</p></div><div><h6>融资／估值</h6><p>据报道三轮累计 4 亿美元；最近一轮投后约 14.2 亿美元。</p></div></section>
+                            <section><span>APEX INTELLIGENCE</span><div><h6>当前边界</h6><p>模型发布很新，需第三方复现；关键是 Apex Research 的改进能否持续迁移到下一代模型。</p></div><div><h6>融资／估值</h6><p>天使轮及天使＋轮累计近 4 亿元人民币；估值未披露。</p></div></section>
+                            <section><span>RECURSIVE</span><div><h6>当前边界</h6><p>是 AI 深度参与模型研发的公开案例，尚不能证明无人监督、持续加速的完整 RSI。</p></div><div><h6>融资／估值</h6><p>已完成 6.5 亿美元融资；2026 年 5 月亮相口径估值 46.5 亿美元。</p></div></section>
+                        </div>
+                    </section>
+                </article>
+
+                <article class="module" id="rsi-judgments">
+                    <div class="module-heading" data-reveal><span class="module-index">02.4</span><div><p class="module-kicker">Strategic Judgments</p><h4 data-editable>几点判断</h4><p class="module-description" data-editable>研发从产品上线前的成本变成产品本身；能力扩散加速之后，NaiveAI 需要同时回答性能、成本与性价比问题。</p></div></div>
+                    <div class="rsi-judgment-stack" data-reveal>
+                        <section class="rsi-judgment"><span class="rsi-judgment-no">01</span><h5>以前研发是产品上线前的成本，<br>现在研发本身就是产品。</h5><div><p>其背景是大模型 Scaling Law 的边际收益越来越窄，行业需要新的增长曲线；竞争也从“谁的模型更会回答问题”，转向“谁能让 AI 更快地参与 AI 研发，并在安全边界内完成自我迭代”。</p></div></section>
+                        <section class="rsi-judgment"><span class="rsi-judgment-no">02</span><h5>RSI 可能让模型能力<br>趋同得更快</h5><div><p>其机制有三：复现速度暴涨、开源与蒸馏普及、后训练方法趋同。领先优势的“保鲜期”可能因此缩短，前沿能力也会更快下沉。</p><div class="rsi-convergence"><div><span>MECHANISM 01</span><strong>复现速度暴涨</strong><small>AI 研究员自动读论文、跑实验和复现，使领先优势的“保鲜期”从几个月缩到几周甚至几天。</small></div><div><span>MECHANISM 02</span><strong>开源与蒸馏普及</strong><small>前沿能力快速下沉到小模型。</small></div><div><span>MECHANISM 03</span><strong>后训练方法趋同</strong><small>数据与 RL 方法相似，增量差异也被快速复制。</small></div></div></div></section>
+                        <section class="rsi-judgment"><span class="rsi-judgment-no">03</span><h5>产品下一步<br>迭代方向</h5><div><div class="rsi-product-direction"><span>PERFORMANCE × COST × VALUE</span><strong>性能比肩大模型，成本降低，性价比更高</strong></div></div></section>
+                    </div>
+                </article>
+            </div></div>
+        </section>
+
+        <!-- ===========================================
+             03 用户研究：三层用户金字塔与五类用户
+             =========================================== -->
+        <section class="chapter" id="users" data-chapter="users">
+            <div class="chapter-hero hero-sky">
+                <div class="hero-content"><p class="eyebrow">03 / User Research</p><h2 data-editable>三层用户<br>一个研发闭环</h2><p class="hero-description" data-editable>从初创、大公司团队与投研机构，到科研课题组与大众，点击金字塔看清五类用户的核心价值。</p></div>
+                <span class="chapter-number" aria-hidden="true">03</span><div class="scroll-cue">下滑进入用户研究</div>
+            </div>
+            <div class="chapter-body"><div class="content-shell">
+                <div class="chapter-intro" data-reveal>
+                    <div><p class="eyebrow">USER PYRAMID</p><h3 data-editable>一套研发闭环，三层用户价值</h3></div>
+                    <p data-editable>点击金字塔分层，再选择具体用户；重点内容已标粗。</p>
+                </div>
+
+                <section class="user-loop-intro" aria-label="Naive-N0.5-Flash 核心功能" data-reveal>
+                    <div class="user-loop-copy"><span class="user-loop-label">CORE FUNCTION / 核心功能</span><p data-editable><strong>Naive-N0.5-Flash</strong> 核心功能是把<strong>写代码、跑实验、监控和分析</strong>串成<strong>研发闭环</strong>。</p></div>
+                    <div class="user-loop-flow" aria-label="写代码、跑实验、监控、分析的研发闭环">
+                        <span class="user-loop-step">写代码</span><i class="user-loop-arrow" aria-hidden="true">→</i>
+                        <span class="user-loop-step">跑实验</span><i class="user-loop-arrow" aria-hidden="true">→</i>
+                        <span class="user-loop-step">监控</span><i class="user-loop-arrow" aria-hidden="true">→</i>
+                        <span class="user-loop-step">分析</span>
+                        <p class="user-loop-feedback">分析回到下一轮研发，形成闭环 ↻</p>
+                    </div>
+                </section>
+                <p class="user-pyramid-definition" data-reveal data-editable>按用户金字塔：<strong>初创、大公司团队与投研机构是高价值用户</strong>，<strong>科研课题组是活跃用户</strong>，<strong>大众是普通用户</strong>；</p>
+
+                <div class="user-pyramid-layout" data-reveal>
+                    <div class="user-pyramid-column">
+                        <div class="user-pyramid" role="group" aria-label="用户金字塔，点击切换用户层级">
+                            <button class="user-pyramid-segment is-active" type="button" data-user-tier="high" aria-pressed="true">
+                                <span class="user-segment-content"><small>01 / HIGH VALUE</small><strong>高价值用户</strong><span>3 类用户</span></span>
+                            </button>
+                            <button class="user-pyramid-segment" type="button" data-user-tier="active" aria-pressed="false">
+                                <span class="user-segment-content"><small>02 / ACTIVE</small><strong>活跃用户</strong><span>科研课题组</span></span>
+                            </button>
+                            <button class="user-pyramid-segment" type="button" data-user-tier="normal" aria-pressed="false">
+                                <span class="user-segment-content"><small>03 / GENERAL</small><strong>普通用户</strong><span>大众</span></span>
+                            </button>
+                        </div>
+                        <p class="user-pyramid-hint"><span aria-hidden="true">→</span>点击层级，查看对应用户</p>
+                    </div>
+
+                    <section class="user-detail-panel" aria-label="用户分层讲解">
+                        <header class="user-detail-top">
+                            <div><span class="user-detail-kicker" id="userTierLabel">高价值用户</span><p id="userTierSummary">初创、大公司团队与投研机构</p></div>
+                            <span class="user-detail-count" id="userTierCount">3 类用户</span>
+                        </header>
+                        <div class="user-persona-tabs" role="tablist" aria-label="选择具体用户">
+                            <button class="user-persona-tab is-active" id="user-tab-startup" type="button" role="tab" aria-selected="true" aria-controls="user-panel-startup" data-user-persona="startup" data-tier-group="high">AI 初创公司</button>
+                            <button class="user-persona-tab" id="user-tab-enterprise" type="button" role="tab" aria-selected="false" aria-controls="user-panel-enterprise" data-user-persona="enterprise" data-tier-group="high" tabindex="-1">大公司 AI 研究团队</button>
+                            <button class="user-persona-tab" id="user-tab-investor" type="button" role="tab" aria-selected="false" aria-controls="user-panel-investor" data-user-persona="investor" data-tier-group="high" tabindex="-1">一线投资人</button>
+                            <button class="user-persona-tab" id="user-tab-scientist" type="button" role="tab" aria-selected="false" aria-controls="user-panel-scientist" data-user-persona="scientist" data-tier-group="active" tabindex="-1" hidden>科研工作者</button>
+                            <button class="user-persona-tab" id="user-tab-consumer" type="button" role="tab" aria-selected="false" aria-controls="user-panel-consumer" data-user-persona="consumer" data-tier-group="normal" tabindex="-1" hidden>大众</button>
+                        </div>
+
+                        <div class="user-persona-panels">
+                            <article class="user-persona-panel is-active" id="user-panel-startup" role="tabpanel" aria-labelledby="user-tab-startup" data-user-panel="startup">
+                                <div class="user-persona-meta"><span class="user-persona-no">01 / AI STARTUP</span><span class="user-value-tag">高价值用户</span></div>
+                                <h4 data-editable>面向AI初创公司的大模型研发人员</h4>
+                                <p class="user-persona-lead" data-editable>对于有<strong>行业经验或应用方向</strong>但是<strong>缺乏大模型研发技术</strong>的创业群体，比如<strong>具身智能、世界模型</strong>等赛道的公司。</p>
+                                <div class="user-key-strip" aria-label="初创公司的核心需求"><span>行业经验或应用方向</span><i>＋</i><span>缺乏大模型研发技术</span><i>→</i><strong>研发闭环</strong></div>
+                            </article>
+
+                            <article class="user-persona-panel" id="user-panel-enterprise" role="tabpanel" aria-labelledby="user-tab-enterprise" data-user-panel="enterprise" hidden>
+                                <div class="user-persona-meta"><span class="user-persona-no">02 / ENTERPRISE</span><span class="user-value-tag">高价值用户</span></div>
+                                <h4 data-editable>面向大公司的AI研究团队</h4>
+                                <p class="user-persona-lead" data-editable>面向大公司的AI研究团队，可以<strong>精简成本</strong>，用外部<strong>“第二研发团队”</strong>缩短实验周期。</p>
+                                <div class="user-risk-card"><span>优势与风险并存</span><p data-editable>但在AI研发方面比自家模型有<strong>特异性优势</strong>，但是<strong>很容易被替代掉</strong>。</p></div>
+                                <div class="user-question"><span>必须回答的问题</span><p data-editable>当自家模型的AI研发性能更好之后，<strong>Naive AI模型能否继续迭代出更好的性能</strong>？</p></div>
+                            </article>
+
+                            <article class="user-persona-panel" id="user-panel-investor" role="tabpanel" aria-labelledby="user-tab-investor" data-user-panel="investor" hidden>
+                                <div class="user-persona-meta"><span class="user-persona-no">04 / INVESTOR</span><span class="user-value-tag">高价值用户</span></div>
+                                <h4 data-editable>面向一线投资人</h4>
+                                <p class="user-persona-lead" data-editable>面向一线投资人，<strong>研发投资团队大模型</strong>，<strong>自动化进行投资研究</strong>。</p>
+                                <div class="user-mini-flow" aria-label="投资团队大模型的价值"><strong>研发投资团队大模型</strong><span aria-hidden="true">→</span><strong>自动化进行投资研究</strong></div>
+                            </article>
+
+                            <article class="user-persona-panel" id="user-panel-scientist" role="tabpanel" aria-labelledby="user-tab-scientist" data-user-panel="scientist" hidden>
+                                <div class="user-persona-meta"><span class="user-persona-no">03 / SCIENCE</span><span class="user-value-tag">活跃用户</span></div>
+                                <h4 data-editable>面向科研工作者</h4>
+                                <p class="user-persona-lead" data-editable>面向科研工作者，如<strong>生物、材料</strong>等方向，课题组可以<strong>研发自己团队的大模型</strong>，自动化地进行科研研究，推动<strong>范式革命</strong>，从传统科研方式转变成<strong>站在巨人的肩膀上进行科研</strong>。</p>
+                                <div class="user-paradigm" aria-label="科研范式变化"><div>传统科研方式</div><span aria-hidden="true">→</span><div>站在巨人的肩膀上进行科研</div></div>
+                            </article>
+
+                            <article class="user-persona-panel" id="user-panel-consumer" role="tabpanel" aria-labelledby="user-tab-consumer" data-user-panel="consumer" hidden>
+                                <div class="user-persona-meta"><span class="user-persona-no">05 / CONSUMER</span><span class="user-value-tag">普通用户</span></div>
+                                <h4 data-editable>面向大众</h4>
+                                <p class="user-persona-lead" data-editable><strong>达人做出案例推广-普通用户模仿</strong>，降低了大模型研发门槛，推动<strong>数字分身范式的革命</strong>——</p>
+                                <div class="user-consumer-grid">
+                                    <section class="user-story-card"><span class="user-story-label">01 / 社交范式</span><p data-editable><strong>数字分身将改变人们的社交范式</strong>，比如运营一个数字分身社区，数字分身之间产生连接，让人们更快的发现自己和自己合得来的人，从而<strong>交到更多朋友</strong>；</p></section>
+                                    <section class="user-story-card"><span class="user-story-label">02 / 情感价值</span><p data-editable>数字分身可以<strong>缓解对亲人的思念</strong>——</p></section>
+                                </div>
+                                <section class="user-digital-compare"><span class="user-story-label">03 / 和蒸馏数字员工进行对比</span><p data-editable>和蒸馏数字员工进行对比，<strong>colleague.skill</strong>它只会复刻已有痕迹里的经验，<strong>没有真人的直觉、突发创新、复杂人情权衡</strong>；遇到<strong>全新、边界模糊的重大决策</strong>很容易出错。</p></section>
+                            </article>
+                        </div>
+                    </section>
+                </div>
+            </div></div>
+        </section>
+
+        <!-- ===========================================
+             04 Campaign：AARRR 用户生命周期
+             =========================================== -->
+        <section class="chapter" id="campaign" data-chapter="campaign">
+            <div class="chapter-hero hero-sky"><div class="hero-content"><p class="eyebrow">04 / Go-to-Market Campaign</p><h2 data-editable>从被看见<br>到被推荐</h2><p class="hero-description" data-editable>结合 AARRR 模型分析并设计宣发 Campaign，让每一次传播都进入完整的用户生命周期。</p></div><span class="chapter-number">04</span><div class="scroll-cue">下滑进入 Campaign</div></div>
+            <div class="chapter-body"><div class="content-shell campaign-content">
+                <div class="chapter-intro" data-reveal><h3 data-editable>五个环节，一条增长链</h3><p data-editable><strong>AARRR 是用户生命周期增长经典框架，一共 5 个环节。</strong><br>点击任一环节，查看对应的宣发动作。</p></div>
+
+                <article class="module campaign-lifecycle-module" id="campaign-aarrr">
+                    <div class="module-heading" data-reveal><span class="module-index">04.1</span><div><p class="module-kicker">AARRR User Lifecycle</p><h4 data-editable>宣发 Campaign：结合 AARRR 模型分析并设计</h4><p class="module-description" data-editable>Acquisition（拉新） → Activation（激活） → Retention（留存） → Revenue（变现） → Referral（推荐）</p></div></div>
+
+                    <div class="campaign-lifecycle" data-campaign-lifecycle data-reveal>
+                        <div class="campaign-lifecycle-top"><span>USER LIFECYCLE / 用户生命周期</span><span id="campaignStageCount">01 / 05</span></div>
+                        <div class="campaign-stage-nav" role="tablist" aria-label="AARRR 用户生命周期五个环节">
+                            <div class="campaign-stage-track" aria-hidden="true"><span id="campaignStageProgress"></span></div>
+                            <button class="campaign-stage-button is-active" id="campaign-tab-acquisition" type="button" role="tab" aria-selected="true" aria-controls="campaign-panel-acquisition" data-campaign-stage="acquisition" data-stage-english="Acquisition" data-stage-chinese="拉新"><span class="campaign-stage-dot">01</span><span class="campaign-stage-name">Acquisition</span><strong>拉新</strong><small>让目标用户看见</small></button>
+                            <button class="campaign-stage-button" id="campaign-tab-activation" type="button" role="tab" aria-selected="false" aria-controls="campaign-panel-activation" data-campaign-stage="activation" data-stage-english="Activation" data-stage-chinese="激活" tabindex="-1"><span class="campaign-stage-dot">02</span><span class="campaign-stage-name">Activation</span><strong>激活</strong><small>让目标用户用起来</small></button>
+                            <button class="campaign-stage-button" id="campaign-tab-retention" type="button" role="tab" aria-selected="false" aria-controls="campaign-panel-retention" data-campaign-stage="retention" data-stage-english="Retention" data-stage-chinese="留存" tabindex="-1"><span class="campaign-stage-dot">03</span><span class="campaign-stage-name">Retention</span><strong>留存</strong><small>让用户持续使用</small></button>
+                            <button class="campaign-stage-button" id="campaign-tab-revenue" type="button" role="tab" aria-selected="false" aria-controls="campaign-panel-revenue" data-campaign-stage="revenue" data-stage-english="Revenue" data-stage-chinese="变现" tabindex="-1"><span class="campaign-stage-dot">04</span><span class="campaign-stage-name">Revenue</span><strong>变现</strong><small>用产品留住用户</small></button>
+                            <button class="campaign-stage-button" id="campaign-tab-referral" type="button" role="tab" aria-selected="false" aria-controls="campaign-panel-referral" data-campaign-stage="referral" data-stage-english="Referral" data-stage-chinese="推荐" tabindex="-1"><span class="campaign-stage-dot">05</span><span class="campaign-stage-name">Referral</span><strong>推荐</strong><small>从个人走向公司</small></button>
+                        </div>
+
+                        <div class="campaign-panels">
+                            <section class="campaign-stage-panel is-active" id="campaign-panel-acquisition" role="tabpanel" aria-labelledby="campaign-tab-acquisition" data-campaign-panel="acquisition">
+                                <header class="campaign-panel-heading"><div><span class="campaign-panel-kicker">01 / ACQUISITION</span><h5>Acquisition（拉新）<span>合作推广，增加曝光</span></h5></div><p>从达人、社区、学术会议到 AI 初创公司，让目标用户先看见 Naive AI。</p></header>
+                                <div class="campaign-action-grid">
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>01</span><span>SOCIAL CREATOR</span></div><h6>社交媒体达人合作</h6><p data-editable>联系社交媒体达人合作分享案例开发和推广，增加在 <strong>B站、小红书、微博</strong> 等的曝光。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>02</span><span>COMMUNITY & MEDIA</span></div><h6>AI 社区与科技媒体合作</h6><p data-editable>与国内 AI 社区（<strong>WaytoAGI、Datawhale、ModelScope 魔搭</strong>等）、科技媒体（<strong>Z potentials、新智元</strong>等）合作进行推广，比如撰写<strong>专题访谈、研究</strong>等，比如分享<strong>案例、实测</strong>等，增加在<strong>公众号</strong>等渠道的曝光，<strong>赞助社区活动</strong>。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>03</span><span>ACADEMIC CONFERENCE</span></div><h6>AI 相关学术会议合作</h6><p data-editable>和 AI 相关学术会议进行合作，为会议提供<strong>赞助</strong>／在会议上<strong>发表演讲</strong>／在会议的<strong>讨论环节</strong>等，针对<strong>科研工作者</strong>进行推广。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>04</span><span>AI STARTUP</span></div><h6>主动联系国内 AI 初创公司</h6><p data-editable>关注国内 AI 初创公司的<strong>融资、产品</strong>等的情况，通过<strong>发邮件</strong>等的形式联系合作，具体可以聚焦<strong>具身智能、世界模型、垂类模型</strong>等赛道。</p></article>
+                                </div>
+                            </section>
+
+                            <section class="campaign-stage-panel" id="campaign-panel-activation" role="tabpanel" aria-labelledby="campaign-tab-activation" data-campaign-panel="activation" hidden>
+                                <header class="campaign-panel-heading"><div><span class="campaign-panel-kicker">02 / ACTIVATION</span><h5>Activation（激活）<span>案例共创，让用户真正用起来</span></h5></div><p>用真实项目降低首次使用门槛，把开发者、科研团队、垂直行业和政府的场景变成共创案例。</p></header>
+                                <div class="campaign-action-grid">
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>01</span><span>HACKATHON</span></div><h6>研发 AI 大模型的黑客松</h6><p data-editable>用 Naive AI 研发 AI 大模型的<strong>黑客松比赛</strong>，可以<strong>自己组织、联合国内社区或高校社团</strong>，进行<strong>工程案例共创</strong>。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>02</span><span>RESEARCH CO-CREATION</span></div><h6>重点实验室与高校科研团队</h6><p data-editable>和<strong>重点实验室、高校科研团队</strong>合作，给予<strong>免费额度</strong>，进行<strong>科研案例共创</strong>。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>03</span><span>VERTICAL INDUSTRY</span></div><h6>高人力成本垂直赛道</h6><p data-editable>和<strong>一线投资人、法律</strong>等目前<strong>人力成本较高</strong>的垂直赛道合作，帮助其<strong>训练、调试、私有化部署</strong>公司内部大模型。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>04</span><span>GOVERNMENT</span></div><h6>政府合作与公共目标</h6><p data-editable>和政府合作，与<strong>人才引育、企业 AI 转型、真实场景开放、园区活跃、项目招引和创业孵化</strong>等公共目标相契合，组织<strong>黑客松、线下交流会</strong>等；可以在<strong>短周期</strong>内把<strong>开发者、企业问题和园区资源</strong>集中起来，并形成一批<strong>可继续推进的项目</strong>。</p></article>
+                                </div>
+                            </section>
+
+                            <section class="campaign-stage-panel" id="campaign-panel-retention" role="tabpanel" aria-labelledby="campaign-tab-retention" data-campaign-panel="retention" hidden>
+                                <header class="campaign-panel-heading"><div><span class="campaign-panel-kicker">03 / RETENTION</span><h5>Retention（留存）<span>给用户持续回来的理由</span></h5></div><p>用社群、排行榜、指导课程和身份认同，让一次尝试变成持续研发。</p></header>
+                                <div class="campaign-action-grid">
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>01</span><span>COMMUNITY</span></div><h6>话题社群运营</h6><p data-editable>NaiveAI 开发大模型的<strong>话题社群运营</strong>，定期举行<strong>线下交流会</strong>等，<strong>奖励开发成果优秀的参与者</strong>。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>02</span><span>LEADERBOARD</span></div><h6>自营排行榜</h6><p data-editable>公司官网增加自营排行榜 <strong>NaiveAI AutoResearch Challenge</strong>，形成一套<strong>合理的评测规则</strong>，鼓励大家用 NaiveAI 大模型开发大模型，<strong>实时更新，长期运营</strong>。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>03</span><span>GUIDED COURSE</span></div><h6>官网指导课程</h6><p data-editable>公司官网增加<strong>指导课程</strong>，将<strong>研发大模型的门槛降低</strong>，激发大模型研发需求，才能有<strong>更多的人用我们的产品研发大模型</strong>。</p></article>
+                                    <article class="campaign-action-card"><div class="campaign-action-meta"><span>04</span><span>FOMO & IDENTITY</span></div><h6>FOMO 与精英身份认同</h6><p data-editable>利用大众 <strong>FOMO</strong> 的心理，营造出用个人研发大模型的<strong>精英身份认同</strong>。</p></article>
+                                </div>
+                            </section>
+
+                            <section class="campaign-stage-panel" id="campaign-panel-revenue" role="tabpanel" aria-labelledby="campaign-tab-revenue" data-campaign-panel="revenue" hidden>
+                                <header class="campaign-panel-heading"><div><span class="campaign-panel-kicker">04 / REVENUE</span><h5>Revenue（变现）<span>用更好的产品留住用户</span></h5></div><p>变现的基础不是一次宣传，而是模型性能、成本与产品矩阵。</p></header>
+                                <div class="campaign-revenue-levers">
+                                    <article class="campaign-revenue-lever"><span>01 / PERFORMANCE</span><strong>提高模型性能</strong></article>
+                                    <article class="campaign-revenue-lever"><span>02 / COST</span><strong>降低模型成本</strong></article>
+                                    <article class="campaign-revenue-lever"><span>03 / PRODUCT MATRIX</span><strong>完善产品矩阵</strong></article>
+                                </div>
+                                <p class="campaign-revenue-original" data-editable><strong>提高模型性能、降低模型成本、完善产品矩阵</strong>等方式<strong>留住用户</strong>。</p>
+                            </section>
+
+                            <section class="campaign-stage-panel" id="campaign-panel-referral" role="tabpanel" aria-labelledby="campaign-tab-referral" data-campaign-panel="referral" hidden>
+                                <header class="campaign-panel-heading"><div><span class="campaign-panel-kicker">05 / REFERRAL</span><h5>Referral（推荐）<span>从个人使用，走向公司采购</span></h5></div><p>先让个人和开发者用起来，再通过团队内部推广，走向公司采购。</p></header>
+                                <p class="campaign-referral-intro" data-editable>借鉴 <strong>Anthropic 的增长路线</strong>：</p>
+                                <div class="campaign-referral-route" aria-label="Anthropic 增长路线：个人、开发者先使用，团队内部推广，公司采购">
+                                    <article class="campaign-referral-step"><span>01 / ENTRY</span><strong>个人、开发者先使用</strong></article><i class="campaign-referral-arrow" aria-hidden="true">→</i>
+                                    <article class="campaign-referral-step"><span>02 / TEAM</span><strong>团队内部推广</strong></article><i class="campaign-referral-arrow" aria-hidden="true">→</i>
+                                    <article class="campaign-referral-step"><span>03 / COMPANY</span><strong>公司采购</strong></article>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="campaign-panel-controls"><span>点击节点或使用左右方向键切换</span><div class="campaign-control-buttons"><button class="campaign-control-button" type="button" data-campaign-prev>← Referral（推荐）</button><button class="campaign-control-button" type="button" data-campaign-next>下一环节：Activation（激活） →</button></div></div>
+                    </div>
+                </article>
+
+                <article class="module" id="campaign-key-point">
+                    <div class="module-heading" data-reveal><span class="module-index">04.2</span><div><p class="module-kicker">The Key Point</p><h4 data-editable>宣发的关键点：把一件事讲透、讲够</h4><p class="module-description" data-editable><strong>数量和质量足够重要</strong>，各种渠道打动消费者，<strong>重复和大量地讲一件事情</strong>。</p></div></div>
+                    <div class="campaign-key-grid" data-reveal>
+                        <section class="campaign-key-card"><span>01 / QUANTITY × QUALITY</span><strong>数量和质量<br>足够重要</strong></section>
+                        <section class="campaign-key-card"><span>02 / CHANNELS</span><strong>各种渠道<br>打动消费者</strong></section>
+                        <section class="campaign-key-card"><span>03 / REPETITION</span><strong>重复和大量地<br>讲一件事情</strong></section>
+                    </div>
+                    <div class="campaign-key-statement" data-reveal><span>关键点</span><p data-editable><strong>数量和质量足够重要</strong>，各种渠道打动消费者，<strong>重复和大量地讲一件事情</strong>。</p></div>
+                </article>
+            </div></div>
+        </section>
+
+        <!-- ===========================================
+             结尾：汇总并快速返回任意章节
+             =========================================== -->
+        <section class="closing" id="closing" data-chapter="closing">
+            <div class="closing-inner">
+                <p class="eyebrow" data-reveal>From Research to Action</p><h2 data-reveal data-editable>从研究到行动</h2><p class="closing-subtitle" data-reveal data-editable>各章节完成后，将此处替换为最终战略判断、优先级与下一步决策。点击卡片返回对应板块。</p>
+                <div class="closing-grid" data-reveal><button class="closing-card" data-goto="macro"><span>01 / MACRO</span><strong data-editable>宏观判断</strong><p data-editable>待填充：产业变化与战略空位</p></button><button class="closing-card" data-goto="rsi"><span>02 / RSI</span><strong data-editable>RSI 判断</strong><p data-editable>研发即产品；在能力加速趋同中建立性能与成本优势</p></button><button class="closing-card" data-goto="users"><span>03 / USERS</span><strong data-editable>用户选择</strong><p data-editable>待填充：优先人群与 Beachhead</p></button><button class="closing-card" data-goto="campaign"><span>04 / CAMPAIGN</span><strong data-editable>宣发行动</strong><p data-editable>拉新 → 激活 → 留存 → 变现 → 推荐；各渠道重复和大量地讲一件事情</p></button></div>
+                <footer class="site-footer"><span>Naive AI Strategy Research · Interactive Framework</span><button class="small-button" data-goto="top">回到顶部 ↑</button></footer>
+            </div>
+        </section>
+    </main>
+
+    <button class="next-chapter" id="nextChapter" aria-label="前往下一板块"><span>下一板块</span><strong id="nextChapterName">宏观 ↓</strong></button>
+    <div class="edit-panel" id="editPanel"><span>点击文字修改 · 自动保存在本机</span><button id="exportButton">导出 HTML</button><button id="resetButton">清除修改</button><button id="doneEditButton">完成</button></div>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="page-veil" id="pageVeil" aria-hidden="true"></div>
+    <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+    <script src="./macro.js"></script>
+    <script src="./rsi.js"></script>
+    <script src="./users.js"></script>
+    <script src="./campaign.js"></script>
+    <script>
+        /* ===========================================
+           官网式滚动：Scroll Spy、Sticky Hero 收合与演讲导航
+           =========================================== */
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const mainChapters = ['macro', 'rsi', 'users', 'campaign'];
+        const chapterLabels = { top: '首页', macro: '宏观', rsi: 'RSI', users: '用户研究', campaign: 'Campaign', closing: '研究结论' };
+        let currentChapter = 'top';
+        let scrollTicking = false;
+
+        let scrollAnimation = null;
+        let veilTimer = null;
+        function stopSoftScroll() {
+            if (scrollAnimation) cancelAnimationFrame(scrollAnimation);
+            scrollAnimation = null;
+            clearTimeout(veilTimer);
+            document.documentElement.style.scrollBehavior = '';
+            document.getElementById('pageVeil').classList.remove('active');
+        }
+        function goTo(id) {
+            const target = document.getElementById(id);
+            if (!target) return;
+            if (reduceMotion) { target.scrollIntoView({ behavior: 'auto', block: 'start' }); return; }
+            stopSoftScroll();
+            const startY = window.scrollY;
+            const targetY = target.getBoundingClientRect().top + startY;
+            const distance = targetY - startY;
+            if (Math.abs(distance) < 2) return;
+            const root = document.documentElement;
+            const veil = document.getElementById('pageVeil');
+            root.style.scrollBehavior = 'auto';
+            veil.classList.add('active');
+            veilTimer = setTimeout(() => veil.classList.remove('active'), 230);
+            const duration = Math.min(1400, Math.max(680, Math.abs(distance) * .22));
+            const startedAt = performance.now();
+            const easeInOut = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            const frame = (now) => {
+                const progress = Math.min(1, (now - startedAt) / duration);
+                window.scrollTo(0, startY + distance * easeInOut(progress));
+                if (progress < 1) scrollAnimation = requestAnimationFrame(frame);
+                else { scrollAnimation = null; root.style.scrollBehavior = ''; veil.classList.remove('active'); }
+            };
+            scrollAnimation = requestAnimationFrame(frame);
+        }
+        window.addEventListener('wheel', () => { if (scrollAnimation) stopSoftScroll(); }, { passive: true });
+        window.addEventListener('touchstart', () => { if (scrollAnimation) stopSoftScroll(); }, { passive: true });
+        document.querySelectorAll('[data-goto]').forEach((element) => {
+            element.addEventListener('click', (event) => { event.preventDefault(); goTo(element.dataset.goto); });
+        });
+        document.querySelectorAll('[data-persona-target]').forEach((button) => {
+            button.addEventListener('click', () => goTo(button.dataset.personaTarget));
+        });
+
+        function updateScrollScene() {
+            const y = window.scrollY;
+            const vh = window.innerHeight;
+            const maxScroll = document.documentElement.scrollHeight - vh;
+            document.getElementById('scrollProgress').style.width = `${maxScroll > 0 ? (y / maxScroll) * 100 : 0}%`;
+
+            const sceneChapters = ['top', ...mainChapters, 'closing'];
+            let active = 'top';
+            sceneChapters.forEach((id) => {
+                const section = document.getElementById(id);
+                if (section && section.offsetTop <= y + vh * .42) active = id;
+            });
+            currentChapter = active;
+
+            document.querySelectorAll('[data-nav]').forEach((button) => button.classList.toggle('active', button.dataset.nav === active));
+            document.querySelectorAll('[data-rail]').forEach((button) => button.classList.toggle('active', button.dataset.rail === active));
+            const chapterIndex = mainChapters.indexOf(active);
+            document.getElementById('sectionCounter').textContent = chapterIndex >= 0 ? `${String(chapterIndex + 1).padStart(2,'0')} / 04` : (active === 'closing' ? 'END / 04' : '00 / 04');
+
+            const nextButton = document.getElementById('nextChapter');
+            const nextName = document.getElementById('nextChapterName');
+            let nextId = 'macro';
+            if (active === 'top') nextId = 'macro';
+            else if (active === 'closing') nextId = 'top';
+            else {
+                const index = mainChapters.indexOf(active);
+                nextId = index >= 0 && index < mainChapters.length - 1 ? mainChapters[index + 1] : 'closing';
+            }
+            nextButton.dataset.next = nextId;
+            nextName.textContent = `${nextId === 'top' ? '回到顶部' : (nextId === 'closing' ? '研究结论' : chapterLabels[nextId])} ${nextId === 'top' ? '↑' : '↓'}`;
+
+            if (!reduceMotion) {
+                document.querySelectorAll('.chapter, .intro-wrap').forEach((section) => {
+                    const hero = section.querySelector('.hero-content');
+                    if (!hero) return;
+                    const progress = Math.max(0, Math.min(1, (y - section.offsetTop) / vh));
+                    hero.style.setProperty('--hero-y', `${-70 * progress}px`);
+                    hero.style.setProperty('--hero-scale', String(1 - .07 * progress));
+                    hero.style.setProperty('--hero-opacity', String(1 - .72 * progress));
+                    hero.style.setProperty('--hero-blur', `${2.2 * progress}px`);
+                });
+            }
+            scrollTicking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!scrollTicking) { requestAnimationFrame(updateScrollScene); scrollTicking = true; }
+        }, { passive: true });
+        window.addEventListener('resize', updateScrollScene);
+        document.getElementById('nextChapter').addEventListener('click', () => goTo(document.getElementById('nextChapter').dataset.next || 'macro'));
+        document.addEventListener('keydown', (event) => {
+            if (event.target instanceof Element && event.target.closest('[contenteditable="true"], input, textarea')) return;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+                event.preventDefault();
+                const scene = ['top', ...mainChapters, 'closing'];
+                const current = scene.indexOf(currentChapter);
+                goTo(scene[Math.max(0, Math.min(scene.length - 1, current + (event.key === 'ArrowRight' ? 1 : -1)))]);
+            }
+        });
+
+        /* ===========================================
+           滚动 Reveal 与用户人群 Scroll Spy
+           =========================================== */
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); });
+        }, { threshold: .08, rootMargin: '0px 0px -6% 0px' });
+        document.querySelectorAll('[data-reveal]').forEach((element) => revealObserver.observe(element));
+
+        const personaObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                document.querySelectorAll('[data-persona-target]').forEach((button) => button.classList.toggle('active', button.dataset.personaTarget === entry.target.id));
+            });
+        }, { rootMargin: '-25% 0px -55% 0px', threshold: 0 });
+        document.querySelectorAll('[data-persona]').forEach((section) => personaObserver.observe(section));
+
+        /* ===========================================
+           通用 Tabs、矩阵、RSI 闭环、公司行与 Lab 筛选
+           =========================================== */
+        const tabTimers = new WeakMap();
+        const textTimers = new WeakMap();
+        function softText(element, value) {
+            if (!element || element.textContent === value) return;
+            clearTimeout(textTimers.get(element));
+            element.classList.add('soft-swap', 'swapping');
+            const timer = setTimeout(() => {
+                element.textContent = value;
+                element.classList.remove('swapping');
+            }, reduceMotion ? 0 : 180);
+            textTimers.set(element, timer);
+        }
+        document.querySelectorAll('[data-tabs]').forEach((group) => {
+            const buttons = [...group.querySelectorAll('[data-tab]')];
+            const panels = [...group.querySelectorAll('[data-panel]')];
+            buttons.forEach((button) => button.addEventListener('click', () => {
+                if (button.classList.contains('active')) return;
+                clearTimeout(tabTimers.get(group));
+                const activate = () => {
+                    buttons.forEach((item) => { item.classList.toggle('active', item === button); item.setAttribute('aria-selected', item === button ? 'true' : 'false'); });
+                    panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === button.dataset.tab));
+                    group.classList.remove('is-switching');
+                };
+                if (reduceMotion) activate();
+                else {
+                    group.classList.add('is-switching');
+                    tabTimers.set(group, setTimeout(activate, 170));
+                }
+            }));
+        });
+
+        const matrixDetails = {
+            'General Assistant': '待填充：代表产品、核心场景、增长与商业化信号。',
+            'Vertical Agent': '待填充：Coding、Research、Investment 等垂直 Agent 的代表案例与付费逻辑。',
+            'Workflow Tool': '待填充：产品形态、目标用户、Workflow 嵌入与持续使用机制。',
+            'AI 4 AI': '待填充：模型研发自动化、数字分身与 Naive AI 的战略位置。'
+        };
+        document.querySelectorAll('.matrix-cell').forEach((cell) => cell.addEventListener('click', () => {
+            document.querySelectorAll('.matrix-cell').forEach((item) => item.classList.toggle('active', item === cell));
+            softText(document.getElementById('matrixTitle'), cell.dataset.title);
+            softText(document.getElementById('matrixDetail'), matrixDetails[cell.dataset.title] || cell.dataset.detail);
+        }));
+
+        document.querySelectorAll('.loop-node').forEach((node) => node.addEventListener('click', () => {
+            document.querySelectorAll('.loop-node').forEach((item) => item.classList.toggle('active', item === node));
+            softText(document.getElementById('loopTitle'), node.dataset.title);
+            softText(document.getElementById('loopText'), node.dataset.text);
+        }));
+
+        document.querySelectorAll('.company-row').forEach((row) => row.addEventListener('click', () => {
+            document.querySelectorAll('.company-row').forEach((item) => item.classList.toggle('active', item === row));
+            const company = row.dataset.company;
+            softText(document.getElementById('companyDetailName'), company);
+            softText(document.getElementById('companyDetailText'), `待填充：${company} 的商业模式、盈利口径、关键驱动因素与对 Naive AI 的启示。`);
+        }));
+
+        document.querySelectorAll('[data-lab-filter]').forEach((button) => button.addEventListener('click', () => {
+            document.querySelectorAll('[data-lab-filter]').forEach((item) => item.classList.toggle('active', item === button));
+            document.querySelectorAll('[data-region]').forEach((row) => { row.hidden = button.dataset.labFilter !== 'all' && row.dataset.region !== button.dataset.labFilter; });
+        }));
+
+        /* ===========================================
+           官网式点阵：指针附近圆点放大，离开恢复
+           =========================================== */
+        const dotField = document.getElementById('dotField');
+        for (let i = 0; i < 81; i += 1) dotField.appendChild(document.createElement('i'));
+        let dotCenters = [];
+        function measureDots() {
+            dotCenters = [...dotField.children].map((dot) => {
+                const rect = dot.getBoundingClientRect();
+                return { dot, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+            });
+        }
+        window.addEventListener('load', measureDots);
+        window.addEventListener('resize', measureDots);
+        document.getElementById('top').addEventListener('pointermove', (event) => {
+            if (reduceMotion) return;
+            dotCenters.forEach(({ dot, x, y }) => {
+                const distance = Math.hypot(event.clientX - x, event.clientY - y);
+                const scale = 1 + Math.max(0, 1 - distance / 150) * 2.8;
+                dot.style.transform = `scale(${scale})`;
+            });
+        });
+        document.getElementById('top').addEventListener('pointerleave', () => [...dotField.children].forEach((dot) => { dot.style.transform = 'scale(1)'; }));
+
+        /* ===========================================
+           反色圆形光标与文字点击反馈
+           =========================================== */
+        const cursorDot = document.getElementById('cursorDot');
+        const finePointer = window.matchMedia('(pointer: fine)').matches && window.innerWidth > 760 && navigator.maxTouchPoints === 0;
+        if (finePointer && !reduceMotion) {
+            document.body.classList.add('has-custom-cursor');
+            const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            const rendered = { x: pointer.x, y: pointer.y, scale: 1 };
+            let targetScale = 1;
+            let hoverScale = 1;
+            document.addEventListener('pointermove', (event) => {
+                pointer.x = event.clientX; pointer.y = event.clientY;
+                cursorDot.classList.add('visible');
+                const element = event.target instanceof Element ? event.target : null;
+                hoverScale = element && element.closest('button, a, summary') ? 1.6 : (element && element.closest('h1, h2, h3, h4, h5, h6, p, li') ? 2.5 : 1);
+                targetScale = hoverScale;
+            }, { passive: true });
+            document.addEventListener('pointerdown', () => { targetScale = .72; });
+            document.addEventListener('pointerup', () => { targetScale = hoverScale; });
+            document.documentElement.addEventListener('mouseleave', () => cursorDot.classList.remove('visible'));
+            const renderCursor = () => {
+                rendered.x += (pointer.x - rendered.x) * .2;
+                rendered.y += (pointer.y - rendered.y) * .2;
+                rendered.scale += (targetScale - rendered.scale) * .18;
+                cursorDot.style.transform = `translate3d(${rendered.x}px, ${rendered.y}px, 0) scale(${rendered.scale})`;
+                requestAnimationFrame(renderCursor);
+            };
+            requestAnimationFrame(renderCursor);
+        }
+
+        const feedbackTimers = new WeakMap();
+        document.addEventListener('click', (event) => {
+            if (document.body.classList.contains('editing') || event.button !== 0) return;
+            const element = event.target instanceof Element ? event.target : null;
+            if (!element) return;
+            const text = element.closest('h1, h2, h3, h4, h5, h6, p, [data-editable]');
+            if (!text || element.closest('button, a, summary') || reduceMotion) return;
+            clearTimeout(feedbackTimers.get(text));
+            text.classList.remove('text-feedback');
+            void text.offsetWidth;
+            text.classList.add('text-feedback');
+            feedbackTimers.set(text, setTimeout(() => text.classList.remove('text-feedback'), 800));
+        });
+
+        /* ===========================================
+           浏览器内编辑：E 开启、自动保存与 HTML 导出
+           =========================================== */
+        class InlineEditor {
+            constructor() {
+                this.active = false;
+                this.storageKey = 'naiveai-strategy-longpage-v05';
+                this.elements = [...document.querySelectorAll('[data-editable]')];
+                this.elements.forEach((element, index) => { element.dataset.editId = `edit-${index}`; element.addEventListener('input', () => this.save()); });
+                this.restore();
+                this.bind();
+            }
+            bind() {
+                document.getElementById('editButton').addEventListener('click', () => this.toggle());
+                document.getElementById('doneEditButton').addEventListener('click', () => this.toggle(false));
+                document.getElementById('exportButton').addEventListener('click', () => this.export());
+                document.getElementById('resetButton').addEventListener('click', () => this.reset());
+                document.addEventListener('keydown', (event) => {
+                    const editingText = event.target instanceof Element && event.target.closest('[contenteditable="true"]');
+                    if (event.key.toLowerCase() === 'e' && !editingText && !event.metaKey && !event.ctrlKey) { event.preventDefault(); this.toggle(); }
+                    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') { event.preventDefault(); this.save(); this.export(); }
+                });
+            }
+            toggle(force) {
+                this.active = typeof force === 'boolean' ? force : !this.active;
+                document.body.classList.toggle('editing', this.active);
+                document.getElementById('editButton').classList.toggle('active', this.active);
+                document.getElementById('editPanel').classList.toggle('active', this.active);
+                this.elements.forEach((element) => { element.contentEditable = this.active ? 'true' : 'false'; element.spellcheck = false; });
+                this.toast(this.active ? '编辑模式已开启' : '修改已保存在本机');
+            }
+            save() {
+                const values = {};
+                this.elements.forEach((element) => { values[element.dataset.editId] = element.innerHTML; });
+                try { localStorage.setItem(this.storageKey, JSON.stringify(values)); } catch (error) { console.warn(error); }
+            }
+            restore() {
+                try {
+                    const values = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
+                    this.elements.forEach((element) => { if (values[element.dataset.editId]) element.innerHTML = values[element.dataset.editId]; });
+                } catch (error) { console.warn(error); }
+            }
+            reset() {
+                if (!window.confirm('确定清除本机保存的全部文字修改吗？')) return;
+                localStorage.removeItem(this.storageKey); location.reload();
+            }
+            export() {
+                this.save();
+                if (this.active) this.toggle(false);
+                const blob = new Blob(['<!DOCTYPE html>\n' + document.documentElement.outerHTML], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a'); link.href = url; link.download = 'NaiveAI_战略研究_互动网站.html'; link.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                this.toast('已导出当前 HTML');
+            }
+            toast(message) {
+                const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show');
+                clearTimeout(this.toastTimer); this.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+            }
+        }
+        new InlineEditor();
+        updateScrollScene();
+    </script>
+</body>
+</html>
